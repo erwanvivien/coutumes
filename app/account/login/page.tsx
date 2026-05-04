@@ -1,0 +1,53 @@
+import { signIn } from "@/lib/server/auth";
+import { Apple, Globe } from "lucide-react";
+import styles from "./page.module.css";
+import Link from "next/link";
+import { legalPrivacyUrl, legalTermsUrl } from "@/lib/urls";
+
+const LoginPage: React.FC = () => (
+  <main className={styles.page}>
+    <div className={styles.card}>
+      <header className={styles.header}>
+        <h1 className={styles.title}>APP_NAME</h1>
+        <p className={styles.subtitle}>DESC</p>
+      </header>
+
+      <div className={styles.providers}>
+        {/* Server actions — no client JS needed for the buttons */}
+        <form
+          action={async () => {
+            "use server";
+            await signIn("google", { redirectTo: "/" });
+          }}
+        >
+          <button type="submit" className={styles.providerButton}>
+            <Globe size={18} />
+            Continue with google
+          </button>
+        </form>
+
+        <form
+          action={async () => {
+            "use server";
+            await signIn("apple", { redirectTo: "/" });
+          }}
+        >
+          <button
+            type="submit"
+            className={`${styles.providerButton} ${styles.providerButtonApple}`}
+          >
+            <Apple size={18} />
+            Continue with apple
+          </button>
+        </form>
+      </div>
+
+      <p className={styles.footer}>
+        by signing in you agree to our <Link href={legalTermsUrl()}>terms</Link>{" "}
+        and <Link href={legalPrivacyUrl()}>privacy policy</Link>
+      </p>
+    </div>
+  </main>
+);
+
+export default LoginPage;

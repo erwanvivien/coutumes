@@ -1,0 +1,46 @@
+.container {
+  height: 100dvh;
+  width: 100dvw;
+
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  justify-content: center;
+  align-items: center;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  animation: spin 900ms linear infinite;
+}
+
+.providerButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  width: 100%;
+  padding: 0.85rem 1.25rem;
+  border-radius: 14px;
+  border: 1.5px solid #d8d4cc;
+  background: #fff;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--foreground);
+  cursor: pointer;
+  transition: transform 80ms ease, box-shadow 80ms ease;
+}
+
+.providerButton:active {
+  transform: scale(0.97);
+}
+
+.providerButton:hover {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
