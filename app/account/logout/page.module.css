@@ -34,7 +34,9 @@
   font-weight: 500;
   color: var(--foreground);
   cursor: pointer;
-  transition: transform 80ms ease, box-shadow 80ms ease;
+  transition:
+    transform 80ms ease,
+    box-shadow 80ms ease;
 }
 
 .providerButton:active {

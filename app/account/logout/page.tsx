@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { accountUrl } from "@/lib/urls";
-import { LoaderCircle, LogOut } from "lucide-react";
-import { signOut } from "next-auth/react";
-import { useEffect, useState } from "react";
-import stylesheet from "./page.module.css";
+import { accountUrl } from '@/lib/urls';
+import { LoaderCircle, LogOut } from 'lucide-react';
+import { signOut } from 'next-auth/react';
+import { useEffect, useState } from 'react';
+import stylesheet from './page.module.css';
 
 const LogoutPage: React.FC = () => {
   const [showLogoutNow, setShowLogoutNow] = useState(false);

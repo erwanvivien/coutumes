@@ -1,7 +1,7 @@
-import { redirect } from "next/navigation";
+import { redirect } from 'next/navigation';
 
 const HomePage: React.FC = () => {
-  redirect("/account");
+  redirect('/account');
 };
 
 export default HomePage;

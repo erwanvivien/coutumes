@@ -1,8 +1,8 @@
-import { signIn } from "@/lib/server/auth";
-import { Apple, Globe } from "lucide-react";
-import styles from "./page.module.css";
-import Link from "next/link";
-import { legalPrivacyUrl, legalTermsUrl } from "@/lib/urls";
+import { signIn } from '@/lib/server/auth';
+import { legalPrivacyUrl, legalTermsUrl } from '@/lib/urls';
+import { Apple, Globe } from 'lucide-react';
+import Link from 'next/link';
+import styles from './page.module.css';
 
 const LoginPage: React.FC = () => (
   <main className={styles.page}>
@@ -16,8 +16,8 @@ const LoginPage: React.FC = () => (
         {/* Server actions — no client JS needed for the buttons */}
         <form
           action={async () => {
-            "use server";
-            await signIn("google", { redirectTo: "/" });
+            'use server';
+            await signIn('google', { redirectTo: '/' });
           }}
         >
           <button type="submit" className={styles.providerButton}>
@@ -28,8 +28,8 @@ const LoginPage: React.FC = () => (
 
         <form
           action={async () => {
-            "use server";
-            await signIn("apple", { redirectTo: "/" });
+            'use server';
+            await signIn('apple', { redirectTo: '/' });
           }}
         >
           <button
@@ -43,8 +43,8 @@ const LoginPage: React.FC = () => (
       </div>
 
       <p className={styles.footer}>
-        by signing in you agree to our <Link href={legalTermsUrl()}>terms</Link>{" "}
-        and <Link href={legalPrivacyUrl()}>privacy policy</Link>
+        by signing in you agree to our <Link href={legalTermsUrl()}>terms</Link> and{' '}
+        <Link href={legalPrivacyUrl()}>privacy policy</Link>
       </p>
     </div>
   </main>
