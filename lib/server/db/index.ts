@@ -1,9 +1,9 @@
-import { assert, assertDefined } from "@/lib";
-import { PrismaClient } from "@/prisma/generated/client";
-import { PrismaPg } from "@prisma/adapter-pg";
+import { assert, assertDefined } from '@/lib';
+import { PrismaClient } from '@/prisma/generated/client';
+import { PrismaPg } from '@prisma/adapter-pg';
 
 export const prismaClient: Omit<PrismaClient, `$${string}`> & {
-  $transaction: PrismaClient["$transaction"];
+  $transaction: PrismaClient['$transaction'];
 } = {
   get user() {
     return getPrismaClient().user;
@@ -31,15 +31,15 @@ const getPrismaClient = (): PrismaClient => {
     return _prismaClientCache;
   }
 
-  console.info("Creating new Prisma Client instance");
+  console.info('Creating new Prisma Client instance');
   const adapter = new PrismaPg({ connectionString: getPostgresUrl() });
 
   _prismaClientCache ??= new PrismaClient({
     adapter,
-    log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
+    log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
   });
 
-  if (process.env.NODE_ENV !== "production") {
+  if (process.env.NODE_ENV !== 'production') {
     globalForPrisma.prisma = _prismaClientCache;
   }
 
@@ -48,12 +48,9 @@ const getPrismaClient = (): PrismaClient => {
 
 const getPostgresUrl = (): string => {
   const POSTGRES_URL = process.env.POSTGRES_URL;
-  assertDefined(
-    POSTGRES_URL,
-    "POSTGRES_URL is not defined in environment variables"
-  );
+  assertDefined(POSTGRES_URL, 'POSTGRES_URL is not defined in environment variables');
 
-  if (!POSTGRES_URL.includes("$")) {
+  if (!POSTGRES_URL.includes('$')) {
     return POSTGRES_URL;
   }
 
@@ -69,9 +66,6 @@ const getPostgresUrl = (): string => {
     }
   }
 
-  assert(
-    !updatedUrl.includes("$"),
-    "All placeholders in POSTGRES_URL were not replaced"
-  );
+  assert(!updatedUrl.includes('$'), 'All placeholders in POSTGRES_URL were not replaced');
   return updatedUrl;
 };

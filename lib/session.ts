@@ -1,16 +1,14 @@
-"use server";
+'use server';
 
-import { auth } from "@/lib/server/auth";
-import type { Session, User } from "next-auth";
+import { auth } from '@/lib/server/auth';
+import type { Session, User } from 'next-auth';
 
-export type SessionUser = Omit<User, "id" | "email"> & {
+export type SessionUser = Omit<User, 'id' | 'email'> & {
   id: string;
   email: string;
 };
 
-const getSessionUserFromSession = (
-  session: Session | null,
-): SessionUser | undefined => {
+const getSessionUserFromSession = (session: Session | null): SessionUser | undefined => {
   if (session === null) {
     return undefined;
   }

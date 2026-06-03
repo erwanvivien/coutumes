@@ -1,9 +1,7 @@
-import type {
-  InputJsonObject,
-  InputJsonValue,
-} from "@/prisma/generated/internal/prismaNamespace";
-import type { Adapter, AdapterAccount, AdapterUser } from "next-auth/adapters";
-import { prismaClient } from "../db";
+import type { InputJsonObject, InputJsonValue } from '@/prisma/generated/internal/prismaNamespace';
+import type { Adapter, AdapterAccount, AdapterUser } from 'next-auth/adapters';
+import { prismaClient } from '../db';
+import { authConfSchema, userAuthSchema } from '@/lib/schemas/database/userAuth';
 
 // Maps our User row to the shape NextAuth expects
 const toAdapterUser = (user: {
@@ -25,7 +23,7 @@ export const prismaAdapter: Adapter = {
     // Split name back into firstname/lastname — providers send a single "name" string.
     // Apple sends no name on retry logins, and sometimes falls back to the email address.
     // When no usable name is available, derive parts from the email local part (e.g. "vivien.erwan@..." → ["vivien", "erwan"]).
-    const rawName = (data.name ?? "").trim() || data.email.split("@")[0];
+    const rawName = (data.name ?? '').trim() || data.email.split('@')[0];
 
     const user = await prismaClient.user.create({
       data: {
@@ -59,20 +57,14 @@ export const prismaAdapter: Adapter = {
     // conf is JSONB — filter by provider first, then match sub in-app.
     // This is fine at early scale; add a generated column index if needed later.
     const rows = await prismaClient.userAuth.findMany({
-      select: {
-        User: true,
-        conf: true,
-      },
-      where: { provider: provider as "google" | "apple" },
+      include: { User: true },
+      where: { provider: provider as 'google' | 'apple' },
     });
 
-    const match = rows.find(
-      (row) =>
-        row.conf !== null &&
-        typeof row.conf === "object" &&
-        !Array.isArray(row.conf) &&
-        (row.conf as Record<string, unknown>)["sub"] === providerAccountId
-    );
+    const match = rows.find((row) => {
+      const parsed = userAuthSchema.safeParse(row);
+      return parsed.success && parsed.data.conf.sub === providerAccountId;
+    });
 
     return match ? toAdapterUser(match.User) : null;
   },
@@ -96,14 +88,14 @@ export const prismaAdapter: Adapter = {
       select: { userId: true },
       create: {
         userId: account.userId,
-        provider: account.provider as "google" | "apple",
+        provider: account.provider as 'google' | 'apple',
         conf,
       },
       update: { conf },
       where: {
         userId_provider: {
           userId: account.userId,
-          provider: account.provider as "google" | "apple",
+          provider: account.provider as 'google' | 'apple',
         },
       },
     });
@@ -119,23 +111,23 @@ const buildConf = (account: AdapterAccount): InputJsonObject => {
   // AdapterAccount doesn't type provider-specific fields — cast to a typed bag
   const extra = account as Record<string, InputJsonValue | null | undefined>;
 
-  if (account.provider === "google") {
+  if (account.provider === 'google') {
     return {
       ...base,
-      email: extra["email"],
-      email_verified: extra["email_verified"],
-      name: extra["name"],
-      picture: extra["picture"],
+      email: extra['email'],
+      email_verified: extra['email_verified'],
+      name: extra['name'],
+      picture: extra['picture'],
     };
   }
 
-  if (account.provider === "apple") {
+  if (account.provider === 'apple') {
     return {
       ...base,
-      email: extra["email"],
-      email_verified: extra["email_verified"],
-      is_private_email: extra["is_private_email"],
-      name: extra["name"],
+      email: extra['email'],
+      email_verified: extra['email_verified'],
+      is_private_email: extra['is_private_email'],
+      name: extra['name'],
     };
   }
 

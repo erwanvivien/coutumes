@@ -1,15 +1,15 @@
-import { accountLoginUrl, accountLogoutUrl } from "@/lib/urls";
-import type { User } from "next-auth";
-import NextAuth from "next-auth";
-import type { AdapterUser } from "next-auth/adapters";
-import Apple from "next-auth/providers/apple";
-import Google from "next-auth/providers/google";
-import { prismaAdapter } from "./auth/adapter";
+import { accountLoginUrl, accountLogoutUrl } from '@/lib/urls';
+import type { User } from 'next-auth';
+import NextAuth from 'next-auth';
+import type { AdapterUser } from 'next-auth/adapters';
+import Apple from 'next-auth/providers/apple';
+import Google from 'next-auth/providers/google';
+import { prismaAdapter } from './auth/adapter';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: prismaAdapter,
   // JWT sessions avoid needing a sessions table
-  session: { strategy: "jwt" },
+  session: { strategy: 'jwt' },
   pages: {
     signIn: accountLoginUrl().toPathname(),
     signOut: accountLogoutUrl().toPathname(),
@@ -33,13 +33,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     jwt({ token, user }) {
       const optionalUser = user as User | AdapterUser | undefined;
       if (optionalUser?.id !== undefined) {
-        token["userId"] = optionalUser.id;
+        token['userId'] = optionalUser.id;
       }
       return token;
     },
     session({ session, token }) {
-      if (typeof token["userId"] === "string") {
-        session.user.id = token["userId"];
+      if (typeof token['userId'] === 'string') {
+        session.user.id = token['userId'];
       }
       return session;
     },

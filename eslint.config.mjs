@@ -150,7 +150,7 @@ function preventPrismaImports() {
       if (line.startsWith('model ')) {
         const modelName = line.split(' ')[1].trim();
         return {
-          name: '@/prisma/generated',
+          name: '@/prisma/generated/client',
           importNames: [modelName],
           message: `Use schema instead of prisma type`,
         };
@@ -158,7 +158,7 @@ function preventPrismaImports() {
       if (line.startsWith('enum ')) {
         const enumName = line.split(' ')[1].trim();
         return {
-          name: '@/prisma/generated',
+          name: '@/prisma/generated/client',
           importNames: [enumName],
           message: `Use schema instead of prisma enum type`,
         };
