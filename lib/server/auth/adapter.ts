@@ -1,7 +1,7 @@
+import { userAuthSchema } from '@/lib/schemas/database/userAuth';
 import type { InputJsonObject, InputJsonValue } from '@/prisma/generated/internal/prismaNamespace';
 import type { Adapter, AdapterAccount, AdapterUser } from 'next-auth/adapters';
 import { prismaClient } from '../db';
-import { authConfSchema, userAuthSchema } from '@/lib/schemas/database/userAuth';
 
 // Maps our User row to the shape NextAuth expects
 const toAdapterUser = (user: {
