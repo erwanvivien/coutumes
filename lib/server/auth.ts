@@ -16,6 +16,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     // error: authErrorUrl().replace(absoluteUrl('/'), '/'),
     // verifyRequest: authVerifyRequestUrl(),
   },
+  cookies: localhostCookieOption(),
   providers: [
     Google({
       allowDangerousEmailAccountLinking: true,
@@ -45,3 +46,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
 });
+
+function localhostCookieOption() {
+  const cookiePrefix = 'l4l.';
+
+  return process.env.NODE_ENV !== 'production'
+    ? {
+        sessionToken: {
+          name: `${cookiePrefix}__Secure-next-auth.session-token`,
+        },
+        callbackUrl: { name: `${cookiePrefix}__Secure-next-auth.callback-url` },
+        csrfToken: { name: `${cookiePrefix}__Host-next-auth.csrf-token` },
+        pkceCodeVerifier: {
+          name: `${cookiePrefix}next-auth.pkce.code_verifier`,
+        },
+        state: { name: `${cookiePrefix}next-auth.state` },
+        nonce: { name: `${cookiePrefix}next-auth.nonce` },
+      }
+    : undefined;
+}
