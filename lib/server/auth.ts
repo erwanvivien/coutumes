@@ -4,6 +4,7 @@ import NextAuth from 'next-auth';
 import type { AdapterUser } from 'next-auth/adapters';
 import Apple from 'next-auth/providers/apple';
 import Google from 'next-auth/providers/google';
+import { toPathname } from '..';
 import { prismaAdapter } from './auth/adapter';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -11,8 +12,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   // JWT sessions avoid needing a sessions table
   session: { strategy: 'jwt' },
   pages: {
-    signIn: accountLoginUrl().toPathname(),
-    signOut: accountLogoutUrl().toPathname(),
+    signIn: toPathname(accountLoginUrl()),
+    signOut: toPathname(accountLogoutUrl()),
     // error: authErrorUrl().replace(absoluteUrl('/'), '/'),
     // verifyRequest: authVerifyRequestUrl(),
   },

@@ -28,9 +28,13 @@ export function assertNever(value: never, message?: string): never {
   throw new Error(message ?? `Unexpected value: ${value}`);
 }
 
-export type AbsoluteUrl = string & { toPathname: () => `/${string}` };
+export const absoluteUrl = (pathname: `/${string}`): string => {
+  return `${NEXT_PUBLIC_BASE_URL}${pathname}`;
+};
 
-export const absoluteUrl = (pathname: `/${string}`): AbsoluteUrl => {
-  const abs = `${NEXT_PUBLIC_BASE_URL}${pathname}`;
-  return Object.assign(abs, { toPathname: () => pathname });
+export const toPathname = (absoluteUrl: string): `/${string}` => {
+  assert(absoluteUrl.startsWith(NEXT_PUBLIC_BASE_URL));
+  const pathname = absoluteUrl.slice(NEXT_PUBLIC_BASE_URL.length);
+  assert(pathname.startsWith('/'));
+  return pathname as `/${string}`;
 };
