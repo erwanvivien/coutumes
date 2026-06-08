@@ -14,4 +14,4 @@ CREATE TABLE "user_auth" (
 CREATE UNIQUE INDEX "user_auth_user_id_provider_key" ON "user_auth"("user_id", "provider");
 
 -- AddForeignKey
-ALTER TABLE "user_auth" ADD CONSTRAINT "user_auth_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "user_auth" ADD CONSTRAINT "user_auth_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

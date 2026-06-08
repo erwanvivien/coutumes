@@ -2,7 +2,7 @@
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- CreateTable
-CREATE TABLE "User" (
+CREATE TABLE "user" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "email" TEXT NOT NULL,
     "name" VARCHAR(64) NOT NULL,
@@ -16,4 +16,4 @@ CREATE TABLE "User" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+CREATE UNIQUE INDEX "User_email_key" ON "user"("email");
