@@ -1,6 +1,9 @@
 #!/bin/bash
 # git config set core.hooksPath .vscode/hooks
 
+# Runs next config and rebuilds page/route typings
+npx next typegen
+
 echo "Checking for typescript errors..."
 npx tsc --noEmit --incremental || exit 1
 npm run check:lint || exit 1
