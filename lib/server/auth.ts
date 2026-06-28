@@ -4,7 +4,7 @@ import NextAuth from 'next-auth';
 import type { AdapterUser } from 'next-auth/adapters';
 import Apple from 'next-auth/providers/apple';
 import Google from 'next-auth/providers/google';
-import { toPathname } from '..';
+import { assertDefined, toPathname } from '..';
 import { prismaAdapter } from './auth/adapter';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -49,7 +49,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 });
 
 function localhostCookieOption() {
-  const cookiePrefix = 'l4l.';
+  assertDefined(undefined, 'cookie prefix is missing');
+  const cookiePrefix = 'SOMETHING.';
 
   return process.env.NODE_ENV !== 'production'
     ? {
