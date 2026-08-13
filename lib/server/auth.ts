@@ -7,6 +7,9 @@ import Google from 'next-auth/providers/google';
 import { assertDefined, toPathname } from '..';
 import { prismaAdapter } from './auth/adapter';
 
+const AUTH_APPLE_ID = process.env.AUTH_APPLE_ID || undefined;
+const AUTH_GOOGLE_ID = process.env.AUTH_GOOGLE_ID || undefined;
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: prismaAdapter,
   // JWT sessions avoid needing a sessions table
@@ -19,16 +22,24 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   cookies: localhostCookieOption(),
   providers: [
-    Google({
-      allowDangerousEmailAccountLinking: true,
-    }),
-    Apple({
-      // Apple requires a JWT signed with your private key as the client secret.
-      // Generate it with: https://github.com/auth0/node-apple-signin-auth
-      // AUTH_APPLE_ID, AUTH_APPLE_SECRET are picked up automatically by Auth.js
-      // when named following the AUTH_<PROVIDER>_ID / AUTH_<PROVIDER>_SECRET convention.
-      allowDangerousEmailAccountLinking: true,
-    }),
+    ...(AUTH_GOOGLE_ID !== undefined
+      ? [
+          Google({
+            allowDangerousEmailAccountLinking: true,
+          }),
+        ]
+      : []),
+    ...(AUTH_APPLE_ID !== undefined
+      ? [
+          Apple({
+            // Apple requires a JWT signed with your private key as the client secret.
+            // Generate it with: https://github.com/auth0/node-apple-signin-auth
+            // AUTH_APPLE_ID, AUTH_APPLE_SECRET are picked up automatically by Auth.js
+            // when named following the AUTH_<PROVIDER>_ID / AUTH_<PROVIDER>_SECRET convention.
+            allowDangerousEmailAccountLinking: true,
+          }),
+        ]
+      : []),
   ],
   callbacks: {
     // Persist the user id into the JWT so we can read it server-side via auth()
