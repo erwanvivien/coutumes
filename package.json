@@ -1,37 +1,24 @@
 {
   "name": "template",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "check:format": "npx prettier --check .",
-    "check:types": "npx tsc --noEmit --incremental",
-    "check:lint": "eslint",
-    "validate": "npm run check:format && npm run check:types && npm run check:lint",
-    "format:fix": "npx prettier --write . --list-different"
-  },
-  "dependencies": {
-    "@prisma/adapter-pg": "^7.8.0",
-    "@prisma/client": "^7.8.0",
-    "lucide-react": "^1.14.0",
-    "next": "^16.2.9",
-    "next-auth": "^5.0.0-beta.31",
-    "prisma": "^7.8.0",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
-    "zod": "^4.4.3"
+    "web": "npm run dev -w @template/web",
+    "web:build": "npm run build -w @template/web",
+    "mobile": "npm run start -w @template/mobile",
+    "mobile:android": "npm run android -w @template/mobile",
+    "mobile:ios": "npm run ios -w @template/mobile",
+    "mobile:web": "npm run web -w @template/mobile",
+    "lint": "npm run check:lint -w @template/web && npm run lint -w @template/mobile",
+    "format:fix": "npm run format:fix -w @template/web && npm run format:fix -w @template/mobile",
+    "prepare": "husky"
   },
   "devDependencies": {
-    "@eslint/json": "^1.2.0",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "dotenv": "^17.4.2",
-    "eslint": "^9",
-    "eslint-config-next": "16.2.4",
-    "typescript": "^5",
-    "typescript-plugin-css-modules": "^5.2.0"
+    "husky": "^9.1.7",
+    "lint-staged": "^17.1.1"
   }
 }

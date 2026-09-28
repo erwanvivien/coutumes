@@ -1,0 +1,46 @@
+{
+  "name": "@template/mobile",
+  "main": "expo-router/entry",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@template/shared": "*",
+    "expo": "~57.0.20",
+    "expo-constants": "~57.0.5",
+    "expo-font": "~57.0.1",
+    "expo-linking": "~57.0.9",
+    "expo-router": "~57.0.19",
+    "expo-secure-store": "~57.0.3",
+    "expo-splash-screen": "~57.0.8",
+    "expo-status-bar": "~57.0.1",
+    "expo-web-browser": "~57.0.2",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-native": "0.86.3",
+    "react-native-safe-area-context": "~5.7.0",
+    "react-native-screens": "~4.26.0"
+  },
+  "devDependencies": {
+    "@eslint/json": "^2.0.1",
+    "@types/react": "~19.2.2",
+    "eslint": "^9.0.0",
+    "eslint-config-expo": "~57.0.2",
+    "globals": "^17.7.0",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.64.0"
+  },
+  "scripts": {
+    "start": "expo start",
+    "reset-project": "node ./scripts/reset-project.js",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "web": "expo start --web",
+    "lint": "expo lint",
+    "check:types": "tsc --noEmit",
+    "format:fix": "npx prettier --write . --list-different",
+    "release:android": "bundle exec fastlane android release",
+    "release:android:production": "DELIVER_NUMBER_OF_THREADS=1 bundle exec fastlane android release track:production",
+    "release:ios": "bundle exec fastlane ios release",
+    "release:ios:production": "DELIVER_NUMBER_OF_THREADS=1 bundle exec fastlane ios release app_store:true"
+  }
+}
