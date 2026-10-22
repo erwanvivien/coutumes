@@ -1,12 +1,81 @@
 :root {
-  --background: #faf8f4;
-  --foreground: #1a1a1a;
-  --muted: #7a7a7a;
+  color-scheme: light;
 
-  /* Fonts */
-  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), monospace;
-  --font-display: var(--font-caveat), cursive;
+  /* Surfaces & ink */
+  --page: #f6f5f1;
+  --surface: #fcfcfb;
+  --surface-sunken: #f0efec;
+  --ink: #0b0b0b;
+  --ink-secondary: #52514e;
+  --ink-muted: #898781;
+  --hairline: #e1e0d9;
+  --baseline: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.1);
+  --shadow: 0 1px 2px rgba(11, 11, 11, 0.04), 0 4px 16px rgba(11, 11, 11, 0.04);
+
+  /* Data series (validated categorical slots 1 & 2) */
+  --series-revenue: #2a78d6;
+  --series-objective: #eb6834;
+  --series-revenue-wash: rgba(42, 120, 214, 0.1);
+
+  /* Status — always paired with an icon or a sign, never colour alone */
+  --good: #006300;
+  --critical: #d03b3b;
+  --good-wash: rgba(12, 163, 12, 0.1);
+  --critical-wash: rgba(208, 59, 59, 0.1);
+
+  --accent: #1c5cab;
+  --radius: 12px;
+
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+
+  /* Kept for the template's legacy pages */
+  --background: var(--page);
+  --foreground: var(--ink);
+  --muted: var(--ink-muted);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme='light'])) {
+    color-scheme: dark;
+    --page: #0d0d0d;
+    --surface: #1a1a19;
+    --surface-sunken: #232322;
+    --ink: #f0efec;
+    --ink-secondary: #c3c2b7;
+    --ink-muted: #898781;
+    --hairline: #2c2c2a;
+    --baseline: #383835;
+    --border: rgba(255, 255, 255, 0.1);
+    --shadow: none;
+    --series-revenue: #3987e5;
+    --series-objective: #d95926;
+    --series-revenue-wash: rgba(57, 135, 229, 0.14);
+    --good: #0ca30c;
+    --critical: #e66767;
+    --accent: #86b6ef;
+  }
+}
+
+/* Documents meant for management (presentation, share link, print) are always light */
+:root[data-theme='light'],
+.theme-light {
+  color-scheme: light;
+  --page: #f6f5f1;
+  --surface: #ffffff;
+  --surface-sunken: #f0efec;
+  --ink: #0b0b0b;
+  --ink-secondary: #52514e;
+  --ink-muted: #898781;
+  --hairline: #e1e0d9;
+  --baseline: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.1);
+  --series-revenue: #2a78d6;
+  --series-objective: #eb6834;
+  --series-revenue-wash: rgba(42, 120, 214, 0.1);
+  --good: #006300;
+  --critical: #d03b3b;
+  --accent: #1c5cab;
 }
 
 html {
@@ -23,9 +92,9 @@ body {
   min-height: 100%;
   display: flex;
   flex-direction: column;
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--ink);
+  background: var(--page);
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -39,4 +108,13 @@ body {
 a {
   color: inherit;
   text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
 }

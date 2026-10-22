@@ -1,0 +1,54 @@
+const euro = new Intl.NumberFormat('fr-FR', {
+  style: 'currency',
+  currency: 'EUR',
+  maximumFractionDigits: 0,
+});
+const euroCents = new Intl.NumberFormat('fr-FR', {
+  style: 'currency',
+  currency: 'EUR',
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+const integer = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 });
+const decimal = new Intl.NumberFormat('fr-FR', {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+const percent = new Intl.NumberFormat('fr-FR', { style: 'percent', maximumFractionDigits: 0 });
+const percentPrecise = new Intl.NumberFormat('fr-FR', {
+  style: 'percent',
+  minimumFractionDigits: 1,
+  maximumFractionDigits: 1,
+});
+const compact = new Intl.NumberFormat('fr-FR', { notation: 'compact', maximumFractionDigits: 1 });
+
+/** Shown wherever a figure can't be computed yet, instead of the sheet's #DIV/0! */
+export const EMPTY = '—';
+
+const orEmpty =
+  (format: (value: number) => string) =>
+  (value: number | undefined): string =>
+    value === undefined || !Number.isFinite(value) ? EMPTY : format(value);
+
+export const formatEuro = orEmpty((value) => euro.format(value));
+export const formatEuroCents = orEmpty((value) => euroCents.format(value));
+export const formatInteger = orEmpty((value) => integer.format(value));
+export const formatDecimal = orEmpty((value) => decimal.format(value));
+export const formatPercent = orEmpty((value) => percent.format(value));
+export const formatPercentPrecise = orEmpty((value) => percentPrecise.format(value));
+/** Axis ticks: 0 / 2 k / 4 k */
+export const formatCompact = orEmpty((value) => compact.format(value));
+
+/** "+1 234 €" / "−1 234 €" — always signed, with a real minus sign */
+export const formatSignedEuro = orEmpty(
+  (value) => `${value >= 0 ? '+' : '−'}${euro.format(Math.abs(value))}`,
+);
+
+export const formatDateTime = (iso: string): string =>
+  new Date(iso).toLocaleString('fr-FR', {
+    day: 'numeric',
+    month: 'long',
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'Europe/Paris',
+  });
