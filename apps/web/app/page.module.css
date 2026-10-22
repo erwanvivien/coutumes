@@ -1,0 +1,75 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  list-style: none;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+  padding: 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  transition:
+    transform 120ms,
+    border-color 120ms;
+}
+
+.card:hover {
+  transform: translateY(-1px);
+  border-color: var(--baseline);
+}
+
+.cardCurrent {
+  border-color: var(--series-revenue);
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cardTitle {
+  font-weight: 600;
+}
+
+.badge {
+  padding: 2px 8px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--series-revenue-wash);
+  border-radius: 999px;
+}
+
+.cardValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.progress {
+  height: 6px;
+  overflow: hidden;
+  background: var(--surface-sunken);
+  border-radius: 999px;
+}
+
+.progress > span {
+  display: block;
+  height: 100%;
+  background: var(--series-revenue);
+  border-radius: 999px;
+}
+
+.cardFoot {
+  font-size: 0.8rem;
+  color: var(--ink-muted);
+}
