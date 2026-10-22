@@ -14,7 +14,7 @@ import styles from './report.module.css';
 const TotalsCells: React.FC<{ totals: Totals }> = ({ totals }) => (
   <>
     <td>{formatEuro(totals.daysFilled > 0 ? totals.revenue : undefined)}</td>
-    <td>{formatEuro(totals.objective)}</td>
+    <td>{formatEuro(totals.objective || undefined)}</td>
     <td>
       <Delta value={totals.daysFilled > 0 ? totals.diff : undefined} format={formatSignedEuro} />
     </td>

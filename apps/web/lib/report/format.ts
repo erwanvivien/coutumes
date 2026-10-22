@@ -14,6 +14,7 @@ const decimal = new Intl.NumberFormat('fr-FR', {
   minimumFractionDigits: 2,
   maximumFractionDigits: 2,
 });
+const upTo2Decimals = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 2 });
 const percent = new Intl.NumberFormat('fr-FR', { style: 'percent', maximumFractionDigits: 0 });
 const percentPrecise = new Intl.NumberFormat('fr-FR', {
   style: 'percent',
@@ -34,6 +35,8 @@ export const formatEuro = orEmpty((value) => euro.format(value));
 export const formatEuroCents = orEmpty((value) => euroCents.format(value));
 export const formatInteger = orEmpty((value) => integer.format(value));
 export const formatDecimal = orEmpty((value) => decimal.format(value));
+/** Free-form figures from extra sheet columns: "3", "2,5" */
+export const formatNumber = orEmpty((value) => upTo2Decimals.format(value));
 export const formatPercent = orEmpty((value) => percent.format(value));
 export const formatPercentPrecise = orEmpty((value) => percentPrecise.format(value));
 /** Axis ticks: 0 / 2 k / 4 k */

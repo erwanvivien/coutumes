@@ -4,6 +4,7 @@ import {
   formatEuro,
   formatEuroCents,
   formatInteger,
+  formatNumber,
   formatPercentPrecise,
   formatSignedEuro,
 } from '@/lib/report/format';
@@ -74,7 +75,7 @@ export const DailyTable: React.FC<{ report: MonthReport }> = ({ report }) => {
                 <td>{formatInteger(day.visitors)}</td>
                 <td>{formatPercentPrecise(totals.tt)}</td>
                 {report.extraColumns.map((column) => (
-                  <td key={column}>{formatDecimal(day.extras[column])}</td>
+                  <td key={column}>{formatNumber(day.extras[column])}</td>
                 ))}
               </tr>
             );
@@ -83,7 +84,7 @@ export const DailyTable: React.FC<{ report: MonthReport }> = ({ report }) => {
         <tfoot>
           <tr>
             <th scope="row">Total</th>
-            <td>{formatEuro(total.revenue)}</td>
+            <td>{formatEuro(total.daysFilled > 0 ? total.revenue : undefined)}</td>
             <td>{formatEuro(total.objective)}</td>
             <td>
               <Delta
@@ -91,16 +92,14 @@ export const DailyTable: React.FC<{ report: MonthReport }> = ({ report }) => {
                 format={formatSignedEuro}
               />
             </td>
-            <td>{formatInteger(total.tickets)}</td>
-            <td>{formatInteger(total.items)}</td>
+            <td>{formatInteger(total.tickets || undefined)}</td>
+            <td>{formatInteger(total.items || undefined)}</td>
             <RatioCells totals={total} />
-            <td>{formatInteger(total.visitors)}</td>
+            <td>{formatInteger(total.visitors || undefined)}</td>
             <td>{formatPercentPrecise(total.tt)}</td>
             {report.extraColumns.map((column) => (
               <td key={column}>
-                {formatDecimal(
-                  report.days.reduce((sum, day) => sum + (day.extras[column] ?? 0), 0),
-                )}
+                {formatNumber(report.days.reduce((sum, day) => sum + (day.extras[column] ?? 0), 0))}
               </td>
             ))}
           </tr>

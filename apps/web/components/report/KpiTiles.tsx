@@ -34,6 +34,11 @@ export const KpiTiles: React.FC<{ summary: MonthSummary }> = ({ summary }) => {
           <strong>{formatPercent(monthAttainment)}</strong> de l’objectif mensuel de{' '}
           {formatEuro(monthObjective)}
         </p>
+        {landing !== undefined && (
+          <p className={styles.tileFoot}>
+            Atterrissage estimé : <strong>{formatEuro(landing)}</strong> si le rythme se maintient
+          </p>
+        )}
       </article>
 
       <article className={styles.tile}>
@@ -45,14 +50,10 @@ export const KpiTiles: React.FC<{ summary: MonthSummary }> = ({ summary }) => {
           />
         </p>
         <p className={styles.tileFoot}>
-          {formatPercent(totals.attainment)} de l’objectif à date ({totals.daysFilled} j saisis)
+          {totals.daysFilled === 0
+            ? 'Aucun jour saisi'
+            : `${formatPercent(totals.attainment)} de l’objectif à date · ${totals.daysFilled} j saisis`}
         </p>
-      </article>
-
-      <article className={styles.tile}>
-        <h3 className={styles.tileLabel}>Atterrissage estimé</h3>
-        <p className={styles.tileValue}>{formatEuro(landing)}</p>
-        <p className={styles.tileFoot}>Si le rythme actuel se maintient</p>
       </article>
 
       <article className={styles.tile}>
