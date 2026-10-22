@@ -1,7 +1,8 @@
 # Suivi des ventes
 
-A store's daily sales report, made presentable: the figures stay in a Google Sheet, this app
-turns each month into a dashboard and a PDF / shareable presentation for management.
+A store's daily sales report, made presentable: each store keeps its figures in its own Google
+Sheet, and this app turns each month into a dashboard and a PDF / shareable presentation for
+management. Anyone can sign in and set up their store.
 
 npm workspace monorepo:
 

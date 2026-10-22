@@ -5,10 +5,13 @@ shared types, URL helpers).
 
 ## What the app does
 
-A store's monthly sales figures live in a Google Sheet (one tab per month). `apps/web` reads it
-read-only with a service account, recomputes the KPIs, and renders a dashboard
+Anyone signs in with Google and sets up their store (`/boutique`): a name and the Google Sheet
+where its monthly figures are typed (one tab per month), or demo data. `apps/web` reads the sheet
+read-only with an app-wide service account, recomputes the KPIs, and renders a dashboard
 (`/{year}-{mois}`), a presentation editor (`/{year}-{mois}/presentation`) and frozen public share
-links (`/p/{token}`). Only presentations are stored in Postgres. UI copy is in French.
+links (`/p/{token}`). Postgres holds users, stores (one per user) and presentations (per store).
+Everything a page or action reads must be scoped to the caller's store (`requireStore` /
+`currentStore` in `lib/server/access.ts`). UI copy is in French.
 
 - `apps/web/lib/report/` — pure domain logic (month slugs, sheet parsing, KPIs, blocks); unit-test
   changes here with vitest.

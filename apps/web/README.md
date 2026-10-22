@@ -1,53 +1,55 @@
 # Suivi des ventes — web
 
-Turns the store's monthly Google Sheet into a dashboard and a presentation for management.
+Turns a store's monthly Google Sheet into a dashboard and a presentation for management.
 Numbers are still typed **in the Google Sheet**; this app only reads it.
+
+Anyone can sign in with Google. On first sign-in they set up **their store** at `/boutique`: a
+name, and the link of their Google Sheet (or the built-in demo data). Each user has one store,
+and sees only its figures and presentations.
 
 | Route                         | Who            | What                                                                       |
 | ----------------------------- | -------------- | -------------------------------------------------------------------------- |
-| `/`                           | allowed emails | One card per month tab                                                     |
-| `/2026-novembre`              | allowed emails | KPIs (CA, écart, atterrissage, PM, IV, TT), charts, weekly and daily table |
-| `/2026-novembre/presentation` | allowed emails | Report editor: titles, comments (**gras**), charts, tables → PDF / link    |
+| `/`                           | signed in      | One card per month tab of their store's sheet                              |
+| `/boutique`                   | signed in      | Store setup / settings: name, Google Sheet link, demo data                 |
+| `/2026-novembre`              | signed in      | KPIs (CA, écart, atterrissage, PM, IV, TT), charts, weekly and daily table |
+| `/2026-novembre/presentation` | signed in      | Report editor: titles, comments (**gras**), charts, tables → PDF / link    |
 | `/p/{token}`                  | anyone w/ link | The published presentation, frozen at publish time                         |
 
 ## Getting started
 
 ```bash
 cp .env.example .env      # then fill it in, see below
-docker compose up -d      # Postgres (stores presentations only)
+docker compose up -d      # Postgres on :533 (users, stores, presentations)
 npx prisma migrate deploy
 npm run dev
 ```
 
-To try it without any Google setup, set `GOOGLE_SHEET_ID="demo"`: the app generates a few months
-of plausible figures laid out exactly like the real sheet.
+To try it without a service account, tick **Utiliser des données de démonstration** on `/boutique`:
+the app generates a few months of plausible figures laid out exactly like a real sheet.
 
 ## Configuration
 
-### Who can sign in
+### Sign-in
 
-`ALLOWED_EMAILS` is a comma-separated list of Google accounts. Everyone else is refused at sign-in
-(and told why on the login page). Empty means nobody.
+Google OAuth (`AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET`) — see `.env.example`. Anyone with a Google
+account can sign in and create their store.
 
-Sign-in itself uses Google OAuth (`AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET`) — see `.env.example`.
+### Reading the Google Sheets
 
-### Reading the Google Sheet
-
-The app reads the sheet with a **service account** (a robot Google account), read-only:
+The app reads every store's sheet with one **service account** (a robot Google account),
+read-only. Store owners share their sheet with its email; `/boutique` shows it to them and checks
+access when they save.
 
 1. In [Google Cloud Console](https://console.cloud.google.com/), create a project (or reuse the
    OAuth one) and enable the **Google Sheets API**.
 2. _IAM & Admin → Service Accounts_ → create one → _Keys → Add key → JSON_. Download it.
-3. Open the spreadsheet → _Share_ → add the service account's email (`…@….iam.gserviceaccount.com`)
-   as **Viewer**.
-4. Fill in:
-   - `GOOGLE_SHEET_ID` — the id in the sheet URL: `docs.google.com/spreadsheets/d/<ID>/edit`
+3. Fill in:
    - `GOOGLE_SERVICE_ACCOUNT_EMAIL` — `client_email` from the JSON
    - `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY` — `private_key` from the JSON, on one line with `\n`
 
-The sheet is cached for 5 minutes; **Rafraîchir** re-reads it immediately.
-
-`STORE_NAME` is shown in the header and on the presentation cover.
+A sheet can be linked to **one store only**: someone who learns another store's sheet id can't
+attach it to read its figures. Sheets are cached for 5 minutes per store; **Rafraîchir** re-reads
+immediately.
 
 ## What the sheet must look like
 
