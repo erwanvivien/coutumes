@@ -4,10 +4,9 @@ import { Notice } from '@/components/layout/Notice';
 import { SheetProblem } from '@/components/layout/SheetProblem';
 import { PresentationEditor } from '@/components/presentation/PresentationEditor';
 import { monthId, monthLabel, parseMonthSlug } from '@/lib/report/months';
-import { requireEditor } from '@/lib/server/access';
+import { requireStore } from '@/lib/server/access';
 import { loadReports } from '@/lib/server/loadReports';
 import { getOrCreatePresentation } from '@/lib/server/presentations';
-import { storeName } from '@/lib/server/store';
 import { presentationPath } from '@/lib/urls';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
@@ -25,9 +24,9 @@ const PresentationPage: React.FC<Props> = async ({ params }) => {
   if (month === undefined) {
     notFound();
   }
-  await requireEditor(presentationPath(slug));
+  const { store } = await requireStore(presentationPath(slug));
 
-  const loaded = await loadReports();
+  const loaded = await loadReports(store);
   const report =
     loaded.kind === 'ok'
       ? loaded.reports.find((candidate) => monthId(candidate.month) === monthId(month))
@@ -36,7 +35,7 @@ const PresentationPage: React.FC<Props> = async ({ params }) => {
   if (report === undefined) {
     return (
       <>
-        <AppHeader storeName={storeName()} month={month} />
+        <AppHeader storeName={store.name} month={month} />
         <main className={layout.main}>
           {loaded.kind === 'ok' ? (
             <Notice title={`Aucun onglet pour ${monthLabel(month)}`}>
@@ -50,12 +49,12 @@ const PresentationPage: React.FC<Props> = async ({ params }) => {
     );
   }
 
-  const presentation = await getOrCreatePresentation(monthId(month));
+  const presentation = await getOrCreatePresentation(store.id, monthId(month));
 
   return (
     <PresentationEditor
       slug={slug}
-      storeName={storeName()}
+      storeName={store.name}
       report={report}
       initialBlocks={presentation.blocks}
       initialShareToken={presentation.shareToken}

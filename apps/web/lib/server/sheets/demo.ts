@@ -1,7 +1,7 @@
 import { daysInMonth, resolveTabMonths, weekdayIndex, weekdayName } from '@/lib/report/months';
 import type { Cell } from '@/lib/report/sheetParser';
 
-/** Fake spreadsheet used when GOOGLE_SHEET_ID=demo, laid out exactly like the store's sheet, so
+/** Fake spreadsheet for stores using demo data, laid out exactly like the store's sheet, so
  * the dashboard can be tried (and the parser exercised) without Google credentials. */
 const DEMO_TABS = ['Septembre', 'Octobre', 'Novembre', 'Décembre', 'Janvier 27'];
 const MONTH_OBJECTIVE = 60000;

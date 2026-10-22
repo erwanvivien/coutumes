@@ -11,3 +11,4 @@ export const homePath = (): `/${string}` => '/';
 export const monthPath = (slug: string): `/${string}` => `/${slug}`;
 export const presentationPath = (slug: string): `/${string}` => `/${slug}/presentation`;
 export const sharePath = (token: string): `/${string}` => `/p/${token}`;
+export const storeSettingsPath = (): `/${string}` => '/boutique';

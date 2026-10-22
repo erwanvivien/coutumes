@@ -13,9 +13,8 @@ import { formatDateTime } from '@/lib/report/format';
 import { groupByWeek, summarizeMonth } from '@/lib/report/kpis';
 import { monthId, monthLabel, parseMonthSlug } from '@/lib/report/months';
 import type { MonthReport } from '@/lib/report/types';
-import { requireEditor } from '@/lib/server/access';
+import { requireStore } from '@/lib/server/access';
 import { loadReports } from '@/lib/server/loadReports';
-import { storeName } from '@/lib/server/store';
 import { monthPath, presentationPath } from '@/lib/urls';
 import { Presentation } from 'lucide-react';
 import type { Metadata } from 'next';
@@ -35,9 +34,9 @@ const MonthPage: React.FC<Props> = async ({ params }) => {
   if (month === undefined) {
     notFound();
   }
-  await requireEditor(monthPath(slug));
+  const { store } = await requireStore(monthPath(slug));
 
-  const loaded = await loadReports();
+  const loaded = await loadReports(store);
   const reports = loaded.kind === 'ok' ? loaded.reports : [];
   const index = reports.findIndex((report) => monthId(report.month) === monthId(month));
   const report = index === -1 ? undefined : reports[index];
@@ -49,7 +48,7 @@ const MonthPage: React.FC<Props> = async ({ params }) => {
   return (
     <>
       <AppHeader
-        storeName={storeName()}
+        storeName={store.name}
         month={month}
         previous={previous}
         next={next}

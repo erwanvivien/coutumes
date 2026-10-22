@@ -5,7 +5,6 @@ import type { AdapterUser } from 'next-auth/adapters';
 import Google from 'next-auth/providers/google';
 import { toPathname } from '..';
 import { prismaAdapter } from './auth/adapter';
-import { isAllowedEmail } from './auth/allowlist';
 
 const AUTH_GOOGLE_ID = process.env.AUTH_GOOGLE_ID || undefined;
 
@@ -16,7 +15,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   pages: {
     signIn: toPathname(accountLoginUrl()),
     signOut: toPathname(accountLogoutUrl()),
-    // Errors (e.g. AccessDenied for accounts outside ALLOWED_EMAILS) are explained on the login page
+    // Sign-in errors are shown on the login page rather than Auth.js's generic one
     error: toPathname(accountLoginUrl()),
     // verifyRequest: authVerifyRequestUrl(),
   },
@@ -31,10 +30,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       : []),
   ],
   callbacks: {
-    // Only allow-listed accounts may sign in — this also stops strangers from creating users
-    signIn({ user }) {
-      return isAllowedEmail(user.email);
-    },
     // Persist the user id into the JWT so we can read it server-side via auth()
     jwt({ token, user }) {
       const optionalUser = user as User | AdapterUser | undefined;

@@ -29,6 +29,7 @@ model User {
   emailVerifiedAt DateTime? @map("email_verified_at")
 
   UserAuth UserAuth[]
+  Store    Store?
 
   @@map("user")
 }
@@ -51,13 +52,36 @@ model UserAuth {
   @@map("user_auth")
 }
 
+/// A shop and the Google Sheet its figures are typed into. One per user, set up after first login.
+model Store {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  ownerId String @unique @map("owner_id") @db.Uuid
+  Owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  name        String  @db.VarChar(80)
+  /// Unique: a sheet belongs to one store, so nobody can attach (and read) someone else's sheet
+  sheetId     String? @unique @map("sheet_id")
+  useDemoData Boolean @default(false) @map("use_demo_data")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  Presentation Presentation[]
+
+  @@map("store")
+}
+
 /// A month's report as presented to management: the editable blocks, and — once published — a
 /// frozen copy of the blocks and figures behind an unguessable share link.
 model Presentation {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
 
+  storeId String @map("store_id") @db.Uuid
+  Store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
   /// "2026-11"
-  month  String @unique @db.VarChar(7)
+  month  String @db.VarChar(7)
   blocks Json   @db.JsonB
 
   shareToken  String?   @unique @map("share_token")
@@ -67,5 +91,6 @@ model Presentation {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@unique([storeId, month])
   @@map("presentation")
 }

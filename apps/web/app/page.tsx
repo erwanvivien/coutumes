@@ -6,23 +6,22 @@ import { cx } from '@/lib';
 import { formatEuro, formatPercent } from '@/lib/report/format';
 import { summarizeMonth } from '@/lib/report/kpis';
 import { monthId, monthLabel, monthSlug } from '@/lib/report/months';
-import { requireEditor } from '@/lib/server/access';
+import { requireStore } from '@/lib/server/access';
 import { loadReports } from '@/lib/server/loadReports';
-import { storeName } from '@/lib/server/store';
 import { homePath, monthPath } from '@/lib/urls';
 import Link from 'next/link';
 import styles from './page.module.css';
 
 const HomePage: React.FC = async () => {
-  await requireEditor(homePath());
-  const loaded = await loadReports();
+  const { store } = await requireStore(homePath());
+  const loaded = await loadReports(store);
 
   const now = new Date();
   const currentId = monthId({ year: now.getFullYear(), month: now.getMonth() + 1 });
 
   return (
     <>
-      <AppHeader storeName={storeName()} actions={<RefreshButton />} />
+      <AppHeader storeName={store.name} actions={<RefreshButton />} />
       <main className={layout.main}>
         {loaded.kind !== 'ok' ? (
           <SheetProblem loaded={loaded} />

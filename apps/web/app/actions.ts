@@ -1,15 +1,11 @@
 'use server';
 
-import { getSessionUser } from '@/lib/session';
-import { isAllowedEmail } from '@/lib/server/auth/allowlist';
-import { SHEET_CACHE_TAG } from '@/lib/server/report';
+import { currentStore } from '@/lib/server/access';
+import { sheetCacheTag } from '@/lib/server/report';
 import { updateTag } from 'next/cache';
 
-/** "Rafraîchir": drops the cached sheet so the next render reads Google Sheets again. */
+/** "Rafraîchir": drops the store's cached sheet so the next render reads Google Sheets again. */
 export const refreshSheet = async (): Promise<void> => {
-  const sessionUser = await getSessionUser();
-  if (sessionUser === undefined || !isAllowedEmail(sessionUser.email)) {
-    throw new Error('Unauthorized');
-  }
-  updateTag(SHEET_CACHE_TAG);
+  const store = await currentStore();
+  updateTag(sheetCacheTag(store.id));
 };

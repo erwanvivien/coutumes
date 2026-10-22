@@ -3,19 +3,10 @@
 import type { Block } from '@/lib/report/blocks';
 import { monthId, parseMonthSlug } from '@/lib/report/months';
 import { blocksSchema } from '@/lib/schemas/report';
-import { isAllowedEmail } from '@/lib/server/auth/allowlist';
+import { currentStore } from '@/lib/server/access';
 import { publish, saveBlocks, unpublish } from '@/lib/server/presentations';
-import { getMonthReport, SHEET_CACHE_TAG } from '@/lib/server/report';
-import { storeName } from '@/lib/server/store';
-import { getSessionUser } from '@/lib/session';
+import { getMonthReport, sheetCacheTag } from '@/lib/server/report';
 import { updateTag } from 'next/cache';
-
-const assertEditor = async (): Promise<void> => {
-  const sessionUser = await getSessionUser();
-  if (sessionUser === undefined || !isAllowedEmail(sessionUser.email)) {
-    throw new Error('Unauthorized');
-  }
-};
 
 const monthFromSlug = (slug: string) => {
   const month = parseMonthSlug(slug);
@@ -26,8 +17,8 @@ const monthFromSlug = (slug: string) => {
 };
 
 export const savePresentationBlocks = async (slug: string, blocks: Block[]): Promise<void> => {
-  await assertEditor();
-  await saveBlocks(monthId(monthFromSlug(slug)), blocksSchema.parse(blocks));
+  const store = await currentStore();
+  await saveBlocks(store.id, monthId(monthFromSlug(slug)), blocksSchema.parse(blocks));
 };
 
 export type PublishResult = { shareToken: string; publishedAt: string };
@@ -37,17 +28,17 @@ export const publishPresentation = async (
   slug: string,
   blocks: Block[],
 ): Promise<PublishResult> => {
-  await assertEditor();
+  const store = await currentStore();
   const month = monthFromSlug(slug);
 
-  updateTag(SHEET_CACHE_TAG);
-  const report = await getMonthReport(month);
+  updateTag(sheetCacheTag(store.id));
+  const report = await getMonthReport(store, month);
   if (report === undefined) {
     throw new Error('No sheet tab for this month');
   }
 
-  const presentation = await publish(monthId(month), {
-    storeName: storeName(),
+  const presentation = await publish(store.id, monthId(month), {
+    storeName: store.name,
     report,
     blocks: blocksSchema.parse(blocks),
   });
@@ -61,6 +52,6 @@ export const publishPresentation = async (
 };
 
 export const unpublishPresentation = async (slug: string): Promise<void> => {
-  await assertEditor();
-  await unpublish(monthId(monthFromSlug(slug)));
+  const store = await currentStore();
+  await unpublish(store.id, monthId(monthFromSlug(slug)));
 };

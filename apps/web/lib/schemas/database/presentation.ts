@@ -7,6 +7,7 @@ import type { AssertSchemaAndPrisma } from './assertion';
 
 export const presentationSchema = z.object({
   id: uuidSchema,
+  storeId: uuidSchema,
 
   month: z.string().regex(/^\d{4}-\d{2}$/),
   blocks: blocksSchema,

@@ -1,5 +1,4 @@
 import { signIn } from '@/lib/server/auth';
-import { storeName } from '@/lib/server/store';
 import type { Metadata } from 'next';
 import styles from './page.module.css';
 
@@ -39,20 +38,13 @@ const LoginPage: React.FC<{
     <main className={styles.page}>
       <div className={styles.card}>
         <header className={styles.header}>
-          <p className={styles.eyebrow}>{storeName()}</p>
           <h1 className={styles.title}>Suivi des ventes</h1>
           <p className={styles.subtitle}>
             Chiffre d’affaires, objectifs et présentations mensuelles.
           </p>
         </header>
 
-        {error === 'AccessDenied' && (
-          <p className={styles.error} role="alert">
-            Ce compte Google n’a pas accès au tableau de bord. Demandez à être ajouté à la liste des
-            comptes autorisés.
-          </p>
-        )}
-        {error !== undefined && error !== 'AccessDenied' && (
+        {error !== undefined && (
           <p className={styles.error} role="alert">
             La connexion a échoué. Réessayez dans un instant.
           </p>

@@ -1,6 +1,6 @@
 import { monthLabel, monthSlug, type MonthKey } from '@/lib/report/months';
-import { homePath, monthPath } from '@/lib/urls';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { accountLogoutUrl, homePath, monthPath, storeSettingsPath } from '@/lib/urls';
+import { ChevronLeft, ChevronRight, LogOut, Store } from 'lucide-react';
 import Link from 'next/link';
 import styles from './layout.module.css';
 
@@ -54,7 +54,25 @@ export const AppHeader: React.FC<{
         </nav>
       )}
 
-      <div className={styles.actions}>{actions}</div>
+      <div className={styles.actions}>
+        {actions}
+        <Link
+          href={storeSettingsPath()}
+          className={styles.iconButton}
+          aria-label="Ma boutique"
+          title="Ma boutique"
+        >
+          <Store size={18} />
+        </Link>
+        <Link
+          href={accountLogoutUrl()}
+          className={styles.iconButton}
+          aria-label="Se déconnecter"
+          title="Se déconnecter"
+        >
+          <LogOut size={18} />
+        </Link>
+      </div>
     </div>
   </header>
 );

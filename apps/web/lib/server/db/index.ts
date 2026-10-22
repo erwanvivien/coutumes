@@ -11,6 +11,9 @@ export const prismaClient: Omit<PrismaClient, `$${string}`> & {
   get userAuth() {
     return getPrismaClient().userAuth;
   },
+  get store() {
+    return getPrismaClient().store;
+  },
   get presentation() {
     return getPrismaClient().presentation;
   },

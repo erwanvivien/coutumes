@@ -5,25 +5,40 @@ import { Prisma } from '@/prisma/generated/client';
 import { randomBytes } from 'node:crypto';
 import { prismaClient } from './db';
 
-/** The month's presentation, created with the default layout on first visit. */
-export const getOrCreatePresentation = async (month: string): Promise<Presentation> => {
+const byMonth = (storeId: string, month: string) => ({ storeId_month: { storeId, month } });
+
+/** The store's presentation for a month, created with the default layout on first visit. */
+export const getOrCreatePresentation = async (
+  storeId: string,
+  month: string,
+): Promise<Presentation> => {
   const row = await prismaClient.presentation.upsert({
-    where: { month },
-    create: { month, blocks: defaultBlocks() },
+    where: byMonth(storeId, month),
+    create: { storeId, month, blocks: defaultBlocks() },
     update: {},
   });
   return presentationSchema.parse(row);
 };
 
-export const saveBlocks = async (month: string, blocks: Block[]): Promise<void> => {
-  await prismaClient.presentation.update({ where: { month }, data: { blocks } });
+export const saveBlocks = async (
+  storeId: string,
+  month: string,
+  blocks: Block[],
+): Promise<void> => {
+  await prismaClient.presentation.update({ where: byMonth(storeId, month), data: { blocks } });
 };
 
 /** Freezes the blocks and figures behind the share link, keeping the link if one exists. */
-export const publish = async (month: string, snapshot: Snapshot): Promise<Presentation> => {
-  const existing = await prismaClient.presentation.findUniqueOrThrow({ where: { month } });
+export const publish = async (
+  storeId: string,
+  month: string,
+  snapshot: Snapshot,
+): Promise<Presentation> => {
+  const existing = await prismaClient.presentation.findUniqueOrThrow({
+    where: byMonth(storeId, month),
+  });
   const row = await prismaClient.presentation.update({
-    where: { month },
+    where: byMonth(storeId, month),
     data: {
       blocks: snapshot.blocks,
       snapshot,
@@ -35,9 +50,9 @@ export const publish = async (month: string, snapshot: Snapshot): Promise<Presen
   return presentationSchema.parse(row);
 };
 
-export const unpublish = async (month: string): Promise<void> => {
+export const unpublish = async (storeId: string, month: string): Promise<void> => {
   await prismaClient.presentation.update({
-    where: { month },
+    where: byMonth(storeId, month),
     data: { shareToken: null, snapshot: Prisma.DbNull, publishedAt: null },
   });
 };
