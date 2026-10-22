@@ -9,8 +9,9 @@
     "check:format": "npx prettier --check .",
     "check:types": "npx tsc --noEmit --incremental",
     "check:lint": "eslint",
-    "validate": "npm run check:format && npm run check:types && npm run check:lint",
-    "format:fix": "npx prettier --write . --list-different"
+    "validate": "npm run check:format && npm run check:types && npm run check:lint && npm run test",
+    "format:fix": "npx prettier --write . --list-different",
+    "test": "vitest run"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",
@@ -35,6 +36,7 @@
     "globals": "^17.13.0",
     "typescript": "^5",
     "typescript-eslint": "^8.72.0",
-    "typescript-plugin-css-modules": "^5.2.0"
+    "typescript-plugin-css-modules": "^5.2.0",
+    "vitest": "^5.0.5"
   }
 }
