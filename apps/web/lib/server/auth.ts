@@ -16,7 +16,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   pages: {
     signIn: toPathname(accountLoginUrl()),
     signOut: toPathname(accountLogoutUrl()),
-    // error: authErrorUrl().replace(absoluteUrl('/'), '/'),
+    // Errors (e.g. AccessDenied for accounts outside ALLOWED_EMAILS) are explained on the login page
+    error: toPathname(accountLoginUrl()),
     // verifyRequest: authVerifyRequestUrl(),
   },
   cookies: localhostCookieOption(),
