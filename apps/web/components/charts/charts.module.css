@@ -1,0 +1,220 @@
+.figure {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.plot {
+  position: relative;
+  width: 100%;
+}
+
+.svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* ——— Chrome ——— */
+
+.grid {
+  stroke: var(--hairline);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+
+.baseline {
+  stroke: var(--baseline);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+
+.yTick,
+.xTick,
+.endLabel {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  fill: var(--ink-muted);
+  dominant-baseline: middle;
+}
+
+.yTick {
+  text-anchor: end;
+}
+
+.xTick {
+  text-anchor: middle;
+}
+
+.endLabel {
+  font-size: 12px;
+  font-weight: 600;
+  fill: var(--ink-secondary);
+}
+
+/* ——— Marks ——— */
+
+.column {
+  fill: var(--series-revenue);
+  transition: opacity 120ms;
+}
+
+.targetTick {
+  stroke: var(--series-objective);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.lineRevenue,
+.lineObjective {
+  fill: none;
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.lineRevenue {
+  stroke: var(--series-revenue);
+}
+
+.lineObjective {
+  stroke: var(--series-objective);
+}
+
+.area {
+  fill: var(--series-revenue-wash);
+}
+
+.dotRevenue,
+.dotObjective {
+  stroke: var(--surface);
+  stroke-width: 2;
+}
+
+.dotRevenue {
+  fill: var(--series-revenue);
+}
+
+.dotObjective {
+  fill: var(--series-objective);
+}
+
+/* ——— Interaction ——— */
+
+.hit {
+  fill: transparent;
+  outline: none;
+  cursor: crosshair;
+}
+
+.hoverBand {
+  fill: var(--surface-sunken);
+}
+
+.crosshair {
+  stroke: var(--baseline);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+
+.tooltip {
+  position: absolute;
+  top: 8px;
+  z-index: 2;
+  min-width: 170px;
+  padding: 10px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  pointer-events: none;
+}
+
+.tooltipTitle {
+  margin-bottom: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ink-secondary);
+  text-transform: capitalize;
+}
+
+.tooltipRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+
+.tooltipValue {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.tooltipLabel {
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+}
+
+/* ——— Legend ——— */
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  list-style: none;
+  font-size: 0.8rem;
+  color: var(--ink-secondary);
+}
+
+.legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rectKey,
+.lineKey {
+  display: inline-block;
+  flex: none;
+}
+
+.rectKey {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.lineKey {
+  width: 14px;
+  height: 2px;
+  border-radius: 1px;
+}
+
+.rectKey[data-series='revenue'],
+.lineKey[data-series='revenue'] {
+  background: var(--series-revenue);
+}
+
+.rectKey[data-series='objective'],
+.lineKey[data-series='objective'] {
+  background: var(--series-objective);
+}
+
+@media print {
+  .tooltip,
+  .hoverBand,
+  .crosshair {
+    display: none;
+  }
+
+  .legend,
+  .rectKey,
+  .lineKey,
+  .column,
+  .area {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}
