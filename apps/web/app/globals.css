@@ -118,3 +118,14 @@ button {
 .tabular {
   font-variant-numeric: tabular-nums;
 }
+
+/* Flex + overflow on the page root makes Chrome clip printed content after a few pages */
+@media print {
+  html,
+  body {
+    display: block;
+    height: auto;
+    max-width: none;
+    overflow: visible;
+  }
+}

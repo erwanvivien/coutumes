@@ -1,13 +1,18 @@
-/** Rounds an axis maximum up to a clean value and returns ~4 evenly spaced ticks from 0. */
+/** Picks a clean step (1, 2, 2.5 or 5 × 10ⁿ) giving at most `targetCount + 1` intervals with
+ * the lowest top, and returns the ticks from 0 to that top. */
 export const niceTicks = (max: number, targetCount = 4): number[] => {
   if (max <= 0) {
     return [0, 1];
   }
 
-  const rough = max / targetCount;
-  const magnitude = 10 ** Math.floor(Math.log10(rough));
-  const step = [1, 2, 2.5, 5, 10].map((m) => m * magnitude).find((s) => s >= rough) ?? rough;
-  const count = Math.ceil(max / step);
+  const magnitude = 10 ** Math.floor(Math.log10(max / targetCount));
+  const candidates = [1, 2, 2.5, 5, 10, 20]
+    .map((multiplier) => multiplier * magnitude)
+    .map((step) => ({ step, count: Math.ceil(max / step) }))
+    .filter(({ count }) => count >= 2 && count <= targetCount + 1);
+  const { step, count } = candidates.reduce((best, candidate) =>
+    candidate.step * candidate.count < best.step * best.count ? candidate : best,
+  );
   return Array.from({ length: count + 1 }, (_, i) => i * step);
 };
 
