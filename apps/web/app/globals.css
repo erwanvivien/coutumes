@@ -76,6 +76,9 @@
   --good: #006300;
   --critical: #d03b3b;
   --accent: #1c5cab;
+
+  /* Inherited text colour was resolved against the outer (possibly dark) theme */
+  color: var(--ink);
 }
 
 html {
