@@ -1,8 +1,12 @@
-# template
+# Suivi des ventes
+
+A store's daily sales report, made presentable: the figures stay in a Google Sheet, this app
+turns each month into a dashboard and a PDF / shareable presentation for management.
 
 npm workspace monorepo:
 
-- `apps/web` — Next.js app (auth, API, database via Prisma). See [apps/web/README.md](apps/web/README.md).
+- `apps/web` — Next.js app (auth, Google Sheets reader, dashboard, presentations; Postgres via
+  Prisma). **Setup and sheet format: [apps/web/README.md](apps/web/README.md).**
 - `packages/shared` — framework-agnostic code (`@template/shared`).
 
 ## Getting started
