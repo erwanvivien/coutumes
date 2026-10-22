@@ -28,22 +28,30 @@ export const newBlock = (type: BlockType): Block => {
   return type === 'heading' || type === 'text' ? { id, type, text: '' } : { id, type };
 };
 
-/** What a fresh presentation starts with — a sensible report he only has to comment on. */
-export const defaultBlocks = (): Block[] => [
-  { id: crypto.randomUUID(), type: 'heading', text: 'Synthèse du mois' },
-  { id: crypto.randomUUID(), type: 'kpis' },
-  {
-    id: crypto.randomUUID(),
-    type: 'text',
-    text: '',
-  },
-  { id: crypto.randomUUID(), type: 'heading', text: 'Chiffre d’affaires' },
-  { id: crypto.randomUUID(), type: 'daily-chart' },
-  { id: crypto.randomUUID(), type: 'cumulative-chart' },
-  { id: crypto.randomUUID(), type: 'page-break' },
-  { id: crypto.randomUUID(), type: 'heading', text: 'Détail par semaine' },
-  { id: crypto.randomUUID(), type: 'weekly-table' },
-];
+/** What a fresh presentation starts with: one theme per printed page, each with room for a
+ * comment (empty text blocks don't show in the PDF or on the share link). */
+export const defaultBlocks = (): Block[] =>
+  (
+    [
+      ['heading', 'Synthèse du mois'],
+      ['kpis'],
+      ['text'],
+      ['page-break'],
+      ['heading', 'Chiffre d’affaires par jour'],
+      ['daily-chart'],
+      ['text'],
+      ['page-break'],
+      ['heading', 'Progression vers l’objectif'],
+      ['cumulative-chart'],
+      ['text'],
+      ['page-break'],
+      ['heading', 'Détail par semaine'],
+      ['weekly-table'],
+    ] as const
+  ).map(([type, text]) => {
+    const block = newBlock(type);
+    return text !== undefined && 'text' in block ? { ...block, text } : block;
+  });
 
 export type InlineSegment = { text: string; bold: boolean };
 

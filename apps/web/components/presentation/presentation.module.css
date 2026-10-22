@@ -1,0 +1,143 @@
+/* The document itself: a sheet that reads well on screen and prints to A4 landscape. */
+
+.desk {
+  flex: 1;
+  padding: 32px 16px 96px;
+  background: var(--page);
+}
+
+.sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 48px 56px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  box-shadow: 0 2px 24px rgba(11, 11, 11, 0.06);
+}
+
+@media (max-width: 720px) {
+  .sheet {
+    padding: 24px 16px;
+  }
+}
+
+.cover {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 24px;
+  margin-bottom: 8px;
+  border-bottom: 2px solid var(--ink);
+}
+
+.coverEyebrow {
+  font-size: 0.8rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-secondary);
+}
+
+.coverTitle {
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.coverMeta {
+  font-size: 0.9rem;
+  color: var(--ink-muted);
+}
+
+.heading {
+  margin-top: 12px;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  break-after: avoid;
+}
+
+.text {
+  max-width: 75ch;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--ink-secondary);
+  white-space: pre-wrap;
+}
+
+.text strong {
+  font-weight: 650;
+  color: var(--ink);
+}
+
+.chartCard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  break-inside: avoid;
+}
+
+.chartTitle {
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+
+.pageBreak {
+  break-after: page;
+}
+
+/* ——— Share page ——— */
+
+.floatingActions {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 10;
+}
+
+.footer {
+  margin-top: 16px;
+  padding-top: 12px;
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+  border-top: 1px solid var(--hairline);
+}
+
+/* ——— Print ——— */
+
+@page {
+  size: A4 landscape;
+  margin: 12mm;
+}
+
+@media print {
+  :global(body) {
+    background: #fff;
+  }
+
+  .desk {
+    padding: 0;
+    background: none;
+  }
+
+  .sheet {
+    max-width: none;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .floatingActions {
+    display: none;
+  }
+}
