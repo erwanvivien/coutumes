@@ -27,7 +27,7 @@ COPY prisma ./prisma
 RUN npm i -g prisma && npx prisma generate
 
 COPY app ./app
-# COPY components ./components
+COPY components ./components
 COPY lib ./lib
 COPY public ./public
 # COPY views ./views
