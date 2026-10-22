@@ -1,4 +1,5 @@
 import type { Cell } from '@/lib/report/sheetParser';
+import { demoTabNames, demoTabs } from './demo';
 import { getAccessToken, type ServiceAccount } from './googleAuth';
 
 const API_URL = 'https://sheets.googleapis.com/v4/spreadsheets';
@@ -6,10 +7,8 @@ const API_URL = 'https://sheets.googleapis.com/v4/spreadsheets';
 // Wide enough for the day table plus a few extra columns; the parser stops at the first empty header
 const TAB_RANGE = 'A1:Z80';
 
-export type SheetConfig = {
-  spreadsheetId: string;
-  account: ServiceAccount;
-};
+export type SheetConfig =
+  { kind: 'google'; spreadsheetId: string; account: ServiceAccount } | { kind: 'demo' };
 
 export class SheetNotConfiguredError extends Error {
   constructor() {
@@ -19,6 +18,10 @@ export class SheetNotConfiguredError extends Error {
 
 export const getSheetConfig = (): SheetConfig => {
   const spreadsheetId = process.env.GOOGLE_SHEET_ID || undefined;
+  if (spreadsheetId === 'demo') {
+    return { kind: 'demo' };
+  }
+
   const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || undefined;
   const privateKey = process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY || undefined;
   if (spreadsheetId === undefined || email === undefined || privateKey === undefined) {
@@ -26,10 +29,17 @@ export const getSheetConfig = (): SheetConfig => {
   }
 
   // .env files usually hold the key on one line with literal "\n"
-  return { spreadsheetId, account: { email, privateKey: privateKey.replace(/\\n/g, '\n') } };
+  return {
+    kind: 'google',
+    spreadsheetId,
+    account: { email, privateKey: privateKey.replace(/\\n/g, '\n') },
+  };
 };
 
-const sheetsFetch = async <T>(config: SheetConfig, path: string): Promise<T> => {
+const sheetsFetch = async <T>(
+  config: Extract<SheetConfig, { kind: 'google' }>,
+  path: string,
+): Promise<T> => {
   const token = await getAccessToken(config.account);
   const response = await fetch(`${API_URL}/${config.spreadsheetId}${path}`, {
     headers: { Authorization: `Bearer ${token}` },
@@ -43,6 +53,10 @@ const sheetsFetch = async <T>(config: SheetConfig, path: string): Promise<T> => 
 
 /** Tab titles, in the order they appear in the spreadsheet. */
 export const fetchTabNames = async (config: SheetConfig): Promise<string[]> => {
+  if (config.kind === 'demo') {
+    return demoTabNames();
+  }
+
   const body = await sheetsFetch<{ sheets: { properties: { title: string } }[] }>(
     config,
     '?fields=sheets.properties.title',
@@ -56,6 +70,9 @@ export const fetchTabs = async (
   config: SheetConfig,
   tabNames: string[],
 ): Promise<Map<string, Cell[][]>> => {
+  if (config.kind === 'demo') {
+    return demoTabs(tabNames);
+  }
   if (tabNames.length === 0) {
     return new Map();
   }
