@@ -1,10 +1,8 @@
-import { getSessionUserFromRequest } from '@/lib/server/session';
-import { NextResponse, type NextRequest } from 'next/server';
+import { getSessionUser } from '@/lib/session';
+import { NextResponse } from 'next/server';
 
-// Bearer-aware (unlike most routes, which are cookie-only): the mobile app calls this right after
-// storing its token, both to confirm sign-in worked and to get the profile to display.
-export const GET = async (request: NextRequest): Promise<NextResponse> => {
-  const sessionUser = await getSessionUserFromRequest(request);
+export const GET = async (): Promise<NextResponse> => {
+  const sessionUser = await getSessionUser();
   if (sessionUser === undefined) {
     return NextResponse.json(null, { status: 401 });
   }

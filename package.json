@@ -9,12 +9,8 @@
   "scripts": {
     "web": "npm run dev -w @template/web",
     "web:build": "npm run build -w @template/web",
-    "mobile": "npm run start -w @template/mobile",
-    "mobile:android": "npm run android -w @template/mobile",
-    "mobile:ios": "npm run ios -w @template/mobile",
-    "mobile:web": "npm run web -w @template/mobile",
-    "lint": "npm run check:lint -w @template/web && npm run lint -w @template/mobile",
-    "format:fix": "npm run format:fix -w @template/web && npm run format:fix -w @template/mobile",
+    "lint": "npm run check:lint -w @template/web",
+    "format:fix": "npm run format:fix -w @template/web",
     "prepare": "husky"
   },
   "devDependencies": {

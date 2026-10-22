@@ -14,12 +14,8 @@ const prettierFix = (files) =>
   `npx prettier --write ${files.map((file) => JSON.stringify(file)).join(' ')}`;
 
 export default {
-  'apps/mobile/**/*.{js,jsx,ts,tsx,json}': [prettierFix],
-  'apps/mobile/**/*.{js,jsx,ts,tsx}': [workspaceEslintFix('apps/mobile')],
-  // tsc needs whole-program context, so it can't be scoped to staged files.
-  'apps/mobile/**/*.{ts,tsx}': () => 'npm run check:types -w @template/mobile',
-
   'apps/web/**/*.{js,jsx,mjs,ts,tsx,json}': [prettierFix],
   'apps/web/**/*.{js,jsx,mjs,ts,tsx}': [workspaceEslintFix('apps/web')],
+  // tsc needs whole-program context, so it can't be scoped to staged files.
   'apps/web/**/*.{ts,tsx}': () => 'npm run check:types -w @template/web',
 };

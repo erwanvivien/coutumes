@@ -10,9 +10,7 @@ const AUTH_GOOGLE_ID = process.env.AUTH_GOOGLE_ID || undefined;
 const LoginPage: React.FC<{
   searchParams: Promise<{ redirectTo?: string }>;
 }> = async ({ searchParams }) => {
-  // Lets /api/auth/mobile-token (opened by the mobile app) send the user back here to sign in,
-  // then bounce back to it afterwards to mint the mobile token — without this, sign-in would
-  // always land on the website's homepage instead of returning control to the app.
+  // Lets protected pages send the user back here to sign in, then return to where they were.
   const { redirectTo } = await searchParams;
   const callbackUrl = redirectTo ?? '/';
 
