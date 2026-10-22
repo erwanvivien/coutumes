@@ -6,6 +6,7 @@ import { Notice } from '@/components/layout/Notice';
 import { RefreshButton } from '@/components/layout/RefreshButton';
 import { Section } from '@/components/layout/Section';
 import { SheetProblem } from '@/components/layout/SheetProblem';
+import { TabIssuesBanner } from '@/components/layout/TabIssues';
 import { DailyTable } from '@/components/report/DailyTable';
 import { KpiTiles } from '@/components/report/KpiTiles';
 import { WeeklyTable } from '@/components/report/WeeklyTable';
@@ -40,6 +41,14 @@ const MonthPage: React.FC<Props> = async ({ params }) => {
   const reports = loaded.kind === 'ok' ? loaded.reports : [];
   const index = reports.findIndex((report) => monthId(report.month) === monthId(month));
   const report = index === -1 ? undefined : reports[index];
+  // The tab for this month, even if it couldn't be read (so we can say why)
+  const tab =
+    loaded.kind === 'ok'
+      ? loaded.tabs.find(
+          (candidate) =>
+            candidate.month !== undefined && monthId(candidate.month) === monthId(month),
+        )
+      : undefined;
 
   // Neighbours by sheet order, so the arrows skip months that have no tab
   const previous = index > 0 ? reports[index - 1].month : undefined;
@@ -68,7 +77,7 @@ const MonthPage: React.FC<Props> = async ({ params }) => {
       <main className={layout.main}>
         {loaded.kind !== 'ok' && <SheetProblem loaded={loaded} />}
 
-        {loaded.kind === 'ok' && report === undefined && (
+        {loaded.kind === 'ok' && report === undefined && tab === undefined && (
           <Notice title={`Aucun onglet pour ${monthLabel(month)}`}>
             <p>
               Le Google Sheet n’a pas d’onglet correspondant à ce mois. Les onglets doivent être
@@ -77,6 +86,13 @@ const MonthPage: React.FC<Props> = async ({ params }) => {
           </Notice>
         )}
 
+        {tab !== undefined && tab.status !== 'ok' && (
+          <TabIssuesBanner
+            tabName={tab.tabName}
+            issues={tab.issues}
+            invalid={tab.status === 'invalid'}
+          />
+        )}
         {report !== undefined && <MonthDashboard report={report} />}
       </main>
     </>

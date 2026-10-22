@@ -27,3 +27,16 @@ export type MonthReport = {
   days: DayEntry[];
   fetchedAt: string;
 };
+
+/** How one tab of the sheet was understood. Every tab is listed, so the owner can see what's
+ * wrong with the ones that aren't used (or only partly). */
+export type SheetTab =
+  | { tabName: string; status: 'ok' | 'warning'; month: MonthKey; issues: string[] }
+  | { tabName: string; status: 'invalid'; month?: MonthKey; issues: string[] };
+
+export type SheetRead = {
+  /** Usable months (status ok or warning), chronological */
+  reports: MonthReport[];
+  /** Every tab, in sheet order */
+  tabs: SheetTab[];
+};

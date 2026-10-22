@@ -65,7 +65,19 @@ const parseDay = (cell: Cell, maxDay: number): number | undefined => {
   return day !== undefined && day >= 1 && day <= maxDay ? day : undefined;
 };
 
-/** Turns a month tab's grid into a MonthReport.
+/** The tab can't be read as a month at all. The message is shown to the store owner. */
+export class TabLayoutError extends Error {}
+
+const FIELD_LABELS: Record<KnownField, string> = {
+  revenue: 'Réalisé',
+  objective: 'Objectif',
+  tickets: 'Tickets',
+  items: 'Quantités',
+  visitors: 'Passages',
+};
+
+/** Turns a month tab's grid into a MonthReport, plus the problems worth telling the owner about
+ * (in French, shown as-is). Throws TabLayoutError when there's no table to read.
  *
  * Expected layout (the one from the store's sheet), but tolerant of extra or moved columns:
  *   - somewhere above the table, "Objectif HT" followed by the month objective
@@ -82,12 +94,12 @@ export const parseMonthTab = ({
   month: MonthKey;
   rows: Cell[][];
   fetchedAt: Date;
-}): MonthReport => {
+}): { report: MonthReport; issues: string[] } => {
   const headerIndex = rows.findIndex((row) =>
     row.some((cell) => typeof cell === 'string' && normalizeText(cell) === 'date'),
   );
   if (headerIndex === -1) {
-    throw new Error(`No "Date" header found in tab "${tabName}"`);
+    throw new TabLayoutError('Aucune ligne d’en-tête commençant par « Date »');
   }
 
   const headerRow = rows[headerIndex];
@@ -117,6 +129,7 @@ export const parseMonthTab = ({
 
   const maxDay = daysInMonth(month);
   const days: DayEntry[] = [];
+  const skipped: string[] = [];
   for (const row of rows.slice(headerIndex + 1)) {
     const dateCell = row[dateColumn];
     if (isBlank(dateCell) || normalizeText(String(dateCell)).startsWith('total')) {
@@ -125,6 +138,7 @@ export const parseMonthTab = ({
 
     const day = parseDay(dateCell, maxDay);
     if (day === undefined || days.some((entry) => entry.day === day)) {
+      skipped.push(String(dateCell).trim());
       continue;
     }
 
@@ -144,13 +158,37 @@ export const parseMonthTab = ({
 
   days.sort((a, b) => a.day - b.day);
 
+  const issues: string[] = [];
+  if (known.revenue === undefined) {
+    issues.push('Colonne « Réalisé » introuvable : le chiffre d’affaires reste vide');
+  }
+  const missing = (['objective', 'tickets', 'items', 'visitors'] as const).filter(
+    (field) => known[field] === undefined,
+  );
+  if (missing.length > 0) {
+    issues.push(
+      `Colonne${missing.length > 1 ? 's' : ''} introuvable${missing.length > 1 ? 's' : ''} : ${missing.map((field) => `« ${FIELD_LABELS[field]} »`).join(', ')}`,
+    );
+  }
+  if (days.length === 0) {
+    issues.push('Aucune ligne de jour sous l’en-tête « Date »');
+  }
+  if (skipped.length > 0) {
+    issues.push(
+      `${skipped.length} ligne${skipped.length > 1 ? 's' : ''} ignorée${skipped.length > 1 ? 's' : ''} (date illisible ou en double) : « ${skipped[0]} »${skipped.length > 1 ? '…' : ''}`,
+    );
+  }
+
   return {
-    month,
-    tabName,
-    monthlyObjective,
-    extraColumns: extras.map(({ header }) => header),
-    days,
-    fetchedAt: fetchedAt.toISOString(),
+    report: {
+      month,
+      tabName,
+      monthlyObjective,
+      extraColumns: extras.map(({ header }) => header),
+      days,
+      fetchedAt: fetchedAt.toISOString(),
+    },
+    issues,
   };
 };
 

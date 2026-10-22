@@ -1,6 +1,6 @@
-import type { MonthReport } from '@/lib/report/types';
+import type { MonthReport, SheetTab } from '@/lib/report/types';
 import type { Store } from '@/lib/schemas/database/store';
-import { getMonthReports } from './report';
+import { getSheet } from './report';
 import {
   ServiceAccountMissingError,
   SheetAccessError,
@@ -8,15 +8,15 @@ import {
 } from './sheets/client';
 
 export type LoadedReports =
-  | { kind: 'ok'; reports: MonthReport[] }
+  | { kind: 'ok'; reports: MonthReport[]; tabs: SheetTab[] }
   | { kind: 'not-configured' }
   | { kind: 'no-access' }
   | { kind: 'error'; message: string };
 
-/** Like getMonthReports, but turns failures into something a page can explain. */
+/** Like getSheet, but turns failures into something a page can explain. */
 export const loadReports = async (store: Store): Promise<LoadedReports> => {
   try {
-    return { kind: 'ok', reports: await getMonthReports(store) };
+    return { kind: 'ok', ...(await getSheet(store)) };
   } catch (error) {
     if (error instanceof SheetNotConfiguredError || error instanceof ServiceAccountMissingError) {
       return { kind: 'not-configured' };

@@ -1,6 +1,6 @@
-import { compareMonths, monthId, resolveTabMonths, type MonthKey } from '@/lib/report/months';
-import { parseMonthTab } from '@/lib/report/sheetParser';
-import type { MonthReport } from '@/lib/report/types';
+import { monthId, resolveTabMonths, type MonthKey } from '@/lib/report/months';
+import { readSheet } from '@/lib/report/sheetReader';
+import type { MonthReport, SheetRead } from '@/lib/report/types';
 import type { Store } from '@/lib/schemas/database/store';
 import { unstable_cache } from 'next/cache';
 import { fetchTabNames, fetchTabs, type SheetSource } from './sheets/client';
@@ -17,33 +17,20 @@ const fallbackYear = (): number => {
   return Number.isInteger(fromEnv) && fromEnv > 2000 ? fromEnv : new Date().getFullYear();
 };
 
-const readAllMonths = async (source: SheetSource): Promise<MonthReport[]> => {
-  const tabs = resolveTabMonths(await fetchTabNames(source), fallbackYear());
-  const grids = await fetchTabs(
-    source,
-    tabs.map(({ tabName }) => tabName),
-  );
-  const fetchedAt = new Date();
-
-  return tabs
-    .flatMap(({ tabName, month }) => {
-      try {
-        return [parseMonthTab({ tabName, month, rows: grids.get(tabName) ?? [], fetchedAt })];
-      } catch (error) {
-        // A month tab that doesn't follow the layout shouldn't take the whole dashboard down
-        console.warn(`Skipping tab "${tabName}":`, error);
-        return [];
-      }
-    })
-    .sort((a, b) => compareMonths(a.month, b.month));
+const fetchSheet = async (source: SheetSource): Promise<SheetRead> => {
+  const tabNames = await fetchTabNames(source);
+  // Only tabs named after a month have anything to read; the others are reported as invalid
+  const monthTabs = resolveTabMonths(tabNames, fallbackYear()).map(({ tabName }) => tabName);
+  const grids = await fetchTabs(source, monthTabs);
+  return readSheet({ tabNames, grids, fallbackYear: fallbackYear(), fetchedAt: new Date() });
 };
 
-/** Every month tab of the store's sheet, parsed. Throws if the store has no sheet or Google
- * refuses access — see loadReports for a page-friendly version. */
-export const getMonthReports = (store: Store): Promise<MonthReport[]> => {
+/** Every tab of the store's sheet: the usable months, and how each tab was understood. Throws if
+ * the store has no sheet or Google refuses access — see loadReports for a page-friendly version. */
+export const getSheet = (store: Store): Promise<SheetRead> => {
   const source = sheetSource(store);
   const sourceKey = source.kind === 'demo' ? 'demo' : source.spreadsheetId;
-  return unstable_cache(() => readAllMonths(source), ['sheet-months', store.id, sourceKey], {
+  return unstable_cache(() => fetchSheet(source), ['sheet', store.id, sourceKey], {
     revalidate: SHEET_CACHE_SECONDS,
     tags: [sheetCacheTag(store.id)],
   })();
@@ -53,6 +40,6 @@ export const getMonthReport = async (
   store: Store,
   month: MonthKey,
 ): Promise<MonthReport | undefined> => {
-  const reports = await getMonthReports(store);
+  const { reports } = await getSheet(store);
   return reports.find((report) => monthId(report.month) === monthId(month));
 };

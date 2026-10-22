@@ -32,8 +32,26 @@
 .cardHead {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 8px;
+}
+
+.cardHead > :first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.cardInvalid {
+  background: var(--surface-sunken);
+  box-shadow: none;
+}
+
+.cardInvalid:hover {
+  transform: none;
+  border-color: var(--border);
+}
+
+.cardInvalid .cardTitle {
+  color: var(--ink-secondary);
 }
 
 .cardTitle {

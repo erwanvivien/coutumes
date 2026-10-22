@@ -206,3 +206,38 @@
 .notice ol {
   padding-left: 20px;
 }
+
+/* ——— Sheet tab issues ——— */
+
+.warningIcon {
+  display: inline-flex;
+  flex: none;
+  color: var(--shortfall);
+  cursor: help;
+}
+
+.issuesBanner {
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  background: color-mix(in srgb, var(--shortfall) 8%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--shortfall) 30%, transparent);
+  border-radius: var(--radius);
+}
+
+.issuesIcon {
+  flex: none;
+  margin-top: 2px;
+  color: var(--shortfall);
+}
+
+.issuesTitle {
+  font-weight: 600;
+}
+
+.issuesList {
+  padding-left: 18px;
+  color: var(--ink-secondary);
+}

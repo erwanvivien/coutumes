@@ -1,22 +1,24 @@
-import { resolveTabMonths } from '@/lib/report/months';
-import { parseMonthTab } from '@/lib/report/sheetParser';
+import { readSheet } from '@/lib/report/sheetReader';
 import { describe, expect, it } from 'vitest';
 import { demoTabNames, demoTabs } from './demo';
 
 describe('demo sheet', () => {
-  it('parses like the real one', () => {
-    const tabs = resolveTabMonths(demoTabNames(), 2026);
-    const grids = demoTabs(tabs.map(({ tabName }) => tabName));
-    const reports = tabs.map(({ tabName, month }) =>
-      parseMonthTab({ tabName, month, rows: grids.get(tabName) ?? [], fetchedAt: new Date() }),
-    );
+  it('reads like the real one', () => {
+    const tabNames = demoTabNames();
+    const { reports, tabs } = readSheet({
+      tabNames,
+      grids: demoTabs(tabNames),
+      fallbackYear: 2026,
+      fetchedAt: new Date(),
+    });
 
-    expect(reports.map(({ tabName }) => tabName)).toEqual([
-      'Septembre',
-      'Octobre',
-      'Novembre',
-      'Décembre',
-      'Janvier 27',
+    expect(tabs.map(({ tabName, status }) => [tabName, status])).toEqual([
+      ['Septembre', 'ok'],
+      ['Octobre', 'ok'],
+      ['Novembre', 'ok'],
+      ['Décembre', 'ok'],
+      ['Janvier 27', 'ok'],
+      ['Récap', 'invalid'],
     ]);
     for (const report of reports) {
       expect(report.monthlyObjective).toBe(60000);

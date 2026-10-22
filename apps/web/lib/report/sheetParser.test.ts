@@ -22,7 +22,7 @@ const parse = () =>
     month: { year: 2026, month: 11 },
     rows: NOVEMBER,
     fetchedAt: new Date('2026-11-10T08:00:00Z'),
-  });
+  }).report;
 
 describe('parseNumber', () => {
   it('handles French formatting and sheet errors', () => {
@@ -58,7 +58,7 @@ describe('parseMonthTab', () => {
     const rows = NOVEMBER.map((row) => [...row.slice(0, 9)]);
     rows[1].push('Retours');
     rows[3].push(3);
-    const report = parseMonthTab({
+    const { report } = parseMonthTab({
       tabName: 'Novembre',
       month: { year: 2026, month: 11 },
       rows,
@@ -67,6 +67,34 @@ describe('parseMonthTab', () => {
     expect(report.extraColumns).toEqual(['Retours']);
     expect(report.days[1].extras).toEqual({ Retours: 3 });
     expect(report.days[0].extras).toEqual({ Retours: undefined });
+  });
+
+  it('has nothing to report on the expected layout', () => {
+    const { issues } = parseMonthTab({
+      tabName: 'Novembre',
+      month: { year: 2026, month: 11 },
+      rows: NOVEMBER,
+      fetchedAt: new Date(),
+    });
+    expect(issues).toEqual([]);
+  });
+
+  it('reports missing columns and unreadable rows', () => {
+    const { issues } = parseMonthTab({
+      tabName: 'Novembre',
+      month: { year: 2026, month: 11 },
+      rows: [
+        ['Date', 'CA', 'Tickets'],
+        ['lundi 2 novembre', 100, 2],
+        ['lundi deux', 100, 2],
+        ['lundi 2 novembre', 100, 2],
+      ],
+      fetchedAt: new Date(),
+    });
+    expect(issues).toEqual([
+      'Colonnes introuvables : « Objectif », « Quantités », « Passages »',
+      '2 lignes ignorées (date illisible ou en double) : « lundi deux »…',
+    ]);
   });
 
   it('fails loudly when the layout is unrecognisable', () => {
