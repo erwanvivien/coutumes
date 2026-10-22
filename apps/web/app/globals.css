@@ -13,15 +13,18 @@
   --border: rgba(11, 11, 11, 0.1);
   --shadow: 0 1px 2px rgba(11, 11, 11, 0.04), 0 4px 16px rgba(11, 11, 11, 0.04);
 
-  /* Data series (validated categorical slots 1 & 2) */
+  /* Data: the réalisé is the one saturated colour; the objective is a quiet reference */
   --series-revenue: #2a78d6;
-  --series-objective: #eb6834;
+  --series-objective: #8f8a80;
   --series-revenue-wash: rgba(42, 120, 214, 0.1);
 
-  /* Status — always paired with an icon or a sign, never colour alone */
+  /* Performance vs. objective — always paired with an arrow and a sign, never colour alone.
+   * A shortfall is a warm amber, not an alarm red: the report shows the month in a fair light. */
   --good: #006300;
+  --shortfall: #a85a0b;
+
+  /* App errors (failed save, refused login) */
   --critical: #d03b3b;
-  --good-wash: rgba(12, 163, 12, 0.1);
   --critical-wash: rgba(208, 59, 59, 0.1);
 
   --accent: #1c5cab;
@@ -49,9 +52,10 @@
     --border: rgba(255, 255, 255, 0.1);
     --shadow: none;
     --series-revenue: #3987e5;
-    --series-objective: #d95926;
+    --series-objective: #9a958b;
     --series-revenue-wash: rgba(57, 135, 229, 0.14);
     --good: #0ca30c;
+    --shortfall: #f0a35e;
     --critical: #e66767;
     --accent: #86b6ef;
   }
@@ -71,9 +75,10 @@
   --baseline: #c3c2b7;
   --border: rgba(11, 11, 11, 0.1);
   --series-revenue: #2a78d6;
-  --series-objective: #eb6834;
+  --series-objective: #8f8a80;
   --series-revenue-wash: rgba(42, 120, 214, 0.1);
   --good: #006300;
+  --shortfall: #a85a0b;
   --critical: #d03b3b;
   --accent: #1c5cab;
 
