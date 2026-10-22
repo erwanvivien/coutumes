@@ -35,7 +35,6 @@ model User {
 
 enum Provider {
   google
-  apple
 }
 
 model UserAuth {

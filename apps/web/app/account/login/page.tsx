@@ -1,10 +1,9 @@
 import { signIn } from '@/lib/server/auth';
 import { legalPrivacyUrl, legalTermsUrl } from '@/lib/urls';
-import { Apple, Globe } from 'lucide-react';
+import { Globe } from 'lucide-react';
 import Link from 'next/link';
 import styles from './page.module.css';
 
-const AUTH_APPLE_ID = process.env.AUTH_APPLE_ID || undefined;
 const AUTH_GOOGLE_ID = process.env.AUTH_GOOGLE_ID || undefined;
 
 const LoginPage: React.FC<{
@@ -35,23 +34,6 @@ const LoginPage: React.FC<{
               <button type="submit" className={styles.providerButton}>
                 <Globe size={18} />
                 Continue with google
-              </button>
-            </form>
-          )}
-
-          {AUTH_APPLE_ID !== undefined && (
-            <form
-              action={async () => {
-                'use server';
-                await signIn('apple', { redirectTo: callbackUrl });
-              }}
-            >
-              <button
-                type="submit"
-                className={`${styles.providerButton} ${styles.providerButtonApple}`}
-              >
-                <Apple size={18} />
-                Continue with apple
               </button>
             </form>
           )}

@@ -21,7 +21,6 @@ const toAdapterUser = (user: {
 export const prismaAdapter: Adapter = {
   async createUser(data) {
     // Split name back into firstname/lastname — providers send a single "name" string.
-    // Apple sends no name on retry logins, and sometimes falls back to the email address.
     // When no usable name is available, derive parts from the email local part (e.g. "vivien.erwan@..." → ["vivien", "erwan"]).
     const rawName = (data.name ?? '').trim() || data.email.split('@')[0];
 
@@ -58,7 +57,7 @@ export const prismaAdapter: Adapter = {
     // This is fine at early scale; add a generated column index if needed later.
     const rows = await prismaClient.userAuth.findMany({
       include: { User: true },
-      where: { provider: provider as 'google' | 'apple' },
+      where: { provider: provider as 'google' },
     });
 
     const match = rows.find((row) => {
@@ -88,14 +87,14 @@ export const prismaAdapter: Adapter = {
       select: { userId: true },
       create: {
         userId: account.userId,
-        provider: account.provider as 'google' | 'apple',
+        provider: account.provider as 'google',
         conf,
       },
       update: { conf },
       where: {
         userId_provider: {
           userId: account.userId,
-          provider: account.provider as 'google' | 'apple',
+          provider: account.provider as 'google',
         },
       },
     });
@@ -118,16 +117,6 @@ const buildConf = (account: AdapterAccount): InputJsonObject => {
       email_verified: extra['email_verified'],
       name: extra['name'],
       picture: extra['picture'],
-    };
-  }
-
-  if (account.provider === 'apple') {
-    return {
-      ...base,
-      email: extra['email'],
-      email_verified: extra['email_verified'],
-      is_private_email: extra['is_private_email'],
-      name: extra['name'],
     };
   }
 

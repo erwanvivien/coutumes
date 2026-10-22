@@ -2,13 +2,11 @@ import { accountLoginUrl, accountLogoutUrl } from '@/lib/urls';
 import type { User } from 'next-auth';
 import NextAuth from 'next-auth';
 import type { AdapterUser } from 'next-auth/adapters';
-import Apple from 'next-auth/providers/apple';
 import Google from 'next-auth/providers/google';
 import { toPathname } from '..';
 import { prismaAdapter } from './auth/adapter';
 import { isAllowedEmail } from './auth/allowlist';
 
-const AUTH_APPLE_ID = process.env.AUTH_APPLE_ID || undefined;
 const AUTH_GOOGLE_ID = process.env.AUTH_GOOGLE_ID || undefined;
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -26,17 +24,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     ...(AUTH_GOOGLE_ID !== undefined
       ? [
           Google({
-            allowDangerousEmailAccountLinking: true,
-          }),
-        ]
-      : []),
-    ...(AUTH_APPLE_ID !== undefined
-      ? [
-          Apple({
-            // Apple requires a JWT signed with your private key as the client secret.
-            // Generate it with: https://github.com/auth0/node-apple-signin-auth
-            // AUTH_APPLE_ID, AUTH_APPLE_SECRET are picked up automatically by Auth.js
-            // when named following the AUTH_<PROVIDER>_ID / AUTH_<PROVIDER>_SECRET convention.
             allowDangerousEmailAccountLinking: true,
           }),
         ]
