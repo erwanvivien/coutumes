@@ -51,3 +51,22 @@ model UserAuth {
   @@unique([userId, provider])
   @@map("user_auth")
 }
+
+/// A month's report as presented to management: the editable blocks, and — once published — a
+/// frozen copy of the blocks and figures behind an unguessable share link.
+model Presentation {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  /// "2026-11"
+  month  String @unique @db.VarChar(7)
+  blocks Json   @db.JsonB
+
+  shareToken  String?   @unique @map("share_token")
+  snapshot    Json?     @db.JsonB
+  publishedAt DateTime? @map("published_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("presentation")
+}
