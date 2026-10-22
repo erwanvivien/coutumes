@@ -6,6 +6,7 @@ import Apple from 'next-auth/providers/apple';
 import Google from 'next-auth/providers/google';
 import { toPathname } from '..';
 import { prismaAdapter } from './auth/adapter';
+import { isAllowedEmail } from './auth/allowlist';
 
 const AUTH_APPLE_ID = process.env.AUTH_APPLE_ID || undefined;
 const AUTH_GOOGLE_ID = process.env.AUTH_GOOGLE_ID || undefined;
@@ -42,6 +43,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       : []),
   ],
   callbacks: {
+    // Only allow-listed accounts may sign in — this also stops strangers from creating users
+    signIn({ user }) {
+      return isAllowedEmail(user.email);
+    },
     // Persist the user id into the JWT so we can read it server-side via auth()
     jwt({ token, user }) {
       const optionalUser = user as User | AdapterUser | undefined;
