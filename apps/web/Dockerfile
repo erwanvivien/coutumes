@@ -9,6 +9,8 @@ WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 COPY package.json package-lock.json ./
+COPY apps/web/package.json ./apps/web/package.json
+COPY packages/shared/package.json ./packages/shared/package.json
 RUN npm ci
 
 # Install platform-specific Sharp for Alpine Linux (must be after copying node_modules)
@@ -23,19 +25,20 @@ ENV NEXT_PUBLIC_BASE_URL="${NEXT_PUBLIC_BASE_URL}"
 
 COPY --from=deps /app/node_modules ./node_modules
 
-COPY prisma ./prisma
-RUN npm i -g prisma && npx prisma generate
+COPY apps/web/prisma ./prisma
+RUN npx prisma generate
 
-COPY app ./app
-COPY components ./components
-COPY lib ./lib
-COPY public ./public
-# COPY views ./views
-# COPY content ./content
-COPY next.config.ts \
-  tsconfig.json \
-  package.json \
+COPY packages/shared ./packages/shared
+COPY apps/web/app ./app
+COPY apps/web/components ./components
+COPY apps/web/lib ./lib
+COPY apps/web/public ./public
+# COPY apps/web/views ./views
+# COPY apps/web/content ./content
+COPY apps/web/next.config.ts \
+  apps/web/tsconfig.json \
   package-lock.json ./
+COPY apps/web/package.json ./package.json
 
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
