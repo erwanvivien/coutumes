@@ -14,7 +14,6 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  box-shadow: var(--shadow);
   break-inside: avoid;
 }
 
@@ -26,25 +25,40 @@
   padding: 24px;
 }
 
+/* Small wide capitals, like the site's labels */
 .tileLabel {
-  font-size: 0.8rem;
+  font-family: var(--font-label);
+  font-size: 0.66rem;
+  font-stretch: 125%;
   font-weight: 600;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: var(--ink-secondary);
 }
 
+/* Figures in the condensed headline face */
 .tileValue {
-  font-size: 1.6rem;
-  font-weight: 650;
-  letter-spacing: -0.01em;
-  line-height: 1.15;
+  font-family: var(--font-display);
+  font-size: 2.1rem;
+  font-stretch: 62%;
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  line-height: 1.05;
+}
+
+.tileValueUnit {
+  font-size: 0.6em;
+  font-weight: 600;
+  color: var(--ink-secondary);
 }
 
 .heroValue {
-  font-size: clamp(2.2rem, 5vw, 3.2rem);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1;
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 7vw, 4.6rem);
+  font-stretch: 62%;
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  line-height: 0.95;
 }
 
 .tileFoot {
@@ -58,15 +72,15 @@
 
 .progress {
   height: 10px;
-  border-radius: 999px;
-  background: var(--surface-sunken);
   overflow: hidden;
+  background: var(--beige);
 }
 
 .progressFill {
   height: 100%;
-  border-radius: 999px;
-  background: var(--series-revenue);
+  background: var(--brand);
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
 }
 
 @media (max-width: 900px) {
@@ -107,6 +121,113 @@
   color: var(--shortfall);
 }
 
+/* ——— Weekly recap ——— */
+
+.recap {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.recap .table {
+  font-size: 0.95rem;
+}
+
+.recap .table th,
+.recap .table td {
+  padding: 12px 16px;
+}
+
+.recapValue {
+  font-weight: 650;
+}
+
+.recapPrevious {
+  color: var(--ink-muted);
+}
+
+.rowDetail {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--ink-muted);
+}
+
+.recapAside {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.recapNote {
+  font-family: var(--font-serif);
+  font-size: 0.9rem;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--ink-muted);
+}
+
+.rowLink {
+  text-decoration: underline;
+  text-decoration-color: var(--baseline);
+  text-underline-offset: 3px;
+}
+
+.rowLink:hover {
+  text-decoration-color: var(--ink);
+}
+
+/* Stacked (phone, portrait recap sheet, print): cash and month objective side by side below */
+@media (max-width: 900px) {
+  .recap {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .recapAside {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+
+  .recapNote {
+    grid-column: 1 / -1;
+  }
+}
+
+@container (max-width: 900px) {
+  .recap {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .recapAside {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+
+  .recapNote {
+    grid-column: 1 / -1;
+  }
+}
+
+/* On a phone the change matters more than the S-1 figure it comes from */
+@media (max-width: 520px) {
+  .recapPreviousColumn,
+  .recapLongLabel {
+    display: none;
+  }
+
+  .recap .table th,
+  .recap .table td {
+    padding: 10px 12px;
+  }
+}
+
+@media print {
+  .recap .table th,
+  .recap .table td {
+    padding: 8px 14px;
+  }
+}
+
 /* ——— Tables ——— */
 
 .tableScroll {
@@ -138,8 +259,12 @@
 .table thead th {
   position: sticky;
   top: 0;
-  font-size: 0.75rem;
+  font-family: var(--font-label);
+  font-size: 0.62rem;
+  font-stretch: 125%;
   font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: var(--ink-secondary);
   background: var(--surface);
 }
@@ -155,7 +280,7 @@
 .table tfoot th,
 .table tfoot td {
   font-weight: 650;
-  border-top: 1px solid var(--baseline);
+  border-top: 1px solid var(--ink);
   border-bottom: none;
 }
 

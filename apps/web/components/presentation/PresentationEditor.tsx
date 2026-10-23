@@ -1,21 +1,23 @@
 'use client';
 
-import {
-  publishPresentation,
-  savePresentationBlocks,
-  unpublishPresentation,
-} from '@/app/[month]/presentation/actions';
 import layout from '@/components/layout/layout.module.css';
 import { absoluteUrl, cx } from '@/lib';
-import { BLOCK_LABELS, newBlock, type Block, type BlockType } from '@/lib/report/blocks';
+import {
+  ADDABLE_BLOCKS,
+  BLOCK_LABELS,
+  newBlock,
+  type Block,
+  type BlockType,
+} from '@/lib/report/blocks';
 import { formatDateTime } from '@/lib/report/format';
-import { monthLabel } from '@/lib/report/months';
-import type { MonthReport } from '@/lib/report/types';
-import { monthPath, sharePath } from '@/lib/urls';
+import { monthSlug } from '@/lib/report/months';
+import { periodId, periodLabel, type Period } from '@/lib/report/periods';
+import { monthPath, sharePath, weekPath } from '@/lib/urls';
 import { ArrowDown, ArrowLeft, ArrowUp, Check, Copy, Link2, Plus, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useRef, useState, useTransition } from 'react';
-import { BlockView } from './BlockView';
+import { publishPresentation, savePresentationBlocks, unpublishPresentation } from './actions';
+import { BlockView, type BlockContext } from './BlockView';
 import { Cover } from './Cover';
 import styles from './editor.module.css';
 import presentation from './presentation.module.css';
@@ -26,25 +28,15 @@ type SaveState = 'saved' | 'saving' | 'error';
 
 const AUTOSAVE_DELAY_MS = 800;
 
-const ADDABLE: BlockType[] = [
-  'heading',
-  'text',
-  'kpis',
-  'daily-chart',
-  'cumulative-chart',
-  'weekly-table',
-  'daily-table',
-  'page-break',
-];
-
 export const PresentationEditor: React.FC<{
-  slug: string;
+  period: Period;
   storeName: string;
-  report: MonthReport;
+  context: BlockContext;
   initialBlocks: Block[];
   initialShareToken?: string;
   initialPublishedAt?: string;
-}> = ({ slug, storeName, report, initialBlocks, initialShareToken, initialPublishedAt }) => {
+}> = ({ period, storeName, context, initialBlocks, initialShareToken, initialPublishedAt }) => {
+  const id = periodId(period);
   const [blocks, setBlocks] = useState(initialBlocks);
   const [saveState, setSaveState] = useState<SaveState>('saved');
   const [share, setShare] = useState(
@@ -66,7 +58,7 @@ export const PresentationEditor: React.FC<{
     }
     setSaveState('saving');
     const timeout = setTimeout(() => {
-      savePresentationBlocks(slug, blocks).then(
+      savePresentationBlocks(id, blocks).then(
         () => {
           lastSaved.current = serialized;
           setSaveState('saved');
@@ -75,7 +67,7 @@ export const PresentationEditor: React.FC<{
       );
     }, AUTOSAVE_DELAY_MS);
     return () => clearTimeout(timeout);
-  }, [slug, blocks]);
+  }, [id, blocks]);
 
   const updateBlocks = (update: (current: Block[]) => Block[]) => {
     setBlocks(update);
@@ -110,14 +102,14 @@ export const PresentationEditor: React.FC<{
 
   const onPublish = () =>
     startPublishing(async () => {
-      const result = await publishPresentation(slug, blocks);
+      const result = await publishPresentation(id, blocks);
       setShare({ token: result.shareToken, publishedAt: result.publishedAt });
       setChangedSincePublish(false);
     });
 
   const onUnpublish = () =>
     startPublishing(async () => {
-      await unpublishPresentation(slug);
+      await unpublishPresentation(id);
       setShare(undefined);
     });
 
@@ -136,12 +128,19 @@ export const PresentationEditor: React.FC<{
     <div className={cx('theme-light', styles.root)}>
       <header className={cx(layout.header, styles.noPrint)}>
         <div className={styles.toolbar}>
-          <Link href={monthPath(slug)} className={layout.button}>
+          <Link
+            href={
+              period.kind === 'month' ? monthPath(monthSlug(period.month)) : weekPath(period.start)
+            }
+            className={layout.button}
+          >
             <ArrowLeft size={16} aria-hidden />
             <span className={layout.buttonLabel}>Tableau de bord</span>
           </Link>
           <div className={styles.toolbarTitle}>
-            <strong>Présentation · {monthLabel(report.month)}</strong>
+            <strong>
+              {period.kind === 'month' ? 'Présentation' : 'Récap semaine'} · {periodLabel(period)}
+            </strong>
             <span className={styles.saveState} data-state={saveState}>
               {saveState === 'saving' && 'Enregistrement…'}
               {saveState === 'saved' && 'Enregistré'}
@@ -188,8 +187,8 @@ export const PresentationEditor: React.FC<{
       </header>
 
       <div className={presentation.desk}>
-        <article className={presentation.sheet}>
-          <Cover storeName={storeName} report={report} />
+        <article className={presentation.sheet} data-period={period.kind}>
+          <Cover storeName={storeName} context={context} />
 
           {blocks.map((block, index) => (
             <div key={block.id} className={styles.block}>
@@ -243,7 +242,7 @@ export const PresentationEditor: React.FC<{
                 <div className={cx(styles.pageBreakMarker, styles.noPrint)}>Saut de page</div>
               )}
               {block.type !== 'heading' && block.type !== 'text' && (
-                <BlockView block={block} report={report} />
+                <BlockView block={block} context={context} />
               )}
             </div>
           ))}
@@ -252,7 +251,7 @@ export const PresentationEditor: React.FC<{
             <span className={styles.addLabel}>
               <Plus size={14} aria-hidden /> Ajouter
             </span>
-            {ADDABLE.map((type) => (
+            {ADDABLE_BLOCKS[period.kind].map((type) => (
               <button
                 key={type}
                 type="button"
@@ -263,6 +262,10 @@ export const PresentationEditor: React.FC<{
               </button>
             ))}
           </div>
+
+          <footer className={presentation.footer}>
+            <span className={presentation.footerMark}>{storeName}</span>
+          </footer>
         </article>
       </div>
     </div>

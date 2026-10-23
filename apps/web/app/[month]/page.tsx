@@ -12,7 +12,7 @@ import { KpiTiles } from '@/components/report/KpiTiles';
 import { WeeklyTable } from '@/components/report/WeeklyTable';
 import { formatDateTime } from '@/lib/report/format';
 import { groupByWeek, summarizeMonth } from '@/lib/report/kpis';
-import { monthId, monthLabel, parseMonthSlug } from '@/lib/report/months';
+import { monthId, monthLabel, monthSlug, parseMonthSlug } from '@/lib/report/months';
 import type { MonthReport } from '@/lib/report/types';
 import { requireStore } from '@/lib/server/access';
 import { loadReports } from '@/lib/server/loadReports';
@@ -58,9 +58,15 @@ const MonthPage: React.FC<Props> = async ({ params }) => {
     <>
       <AppHeader
         storeName={store.name}
-        month={month}
-        previous={previous}
-        next={next}
+        nav={{
+          title: monthLabel(month),
+          label: 'Changer de mois',
+          previous: previous && {
+            href: monthPath(monthSlug(previous)),
+            label: monthLabel(previous),
+          },
+          next: next && { href: monthPath(monthSlug(next)), label: monthLabel(next) },
+        }}
         actions={
           <>
             <RefreshButton />
@@ -124,8 +130,11 @@ const MonthDashboard: React.FC<{ report: MonthReport }> = ({ report }) => {
         <CumulativeChart report={report} />
       </Section>
 
-      <Section title="Par semaine">
-        <WeeklyTable weeks={weeks} total={summary.totals} />
+      <Section
+        title="Par semaine"
+        description="Ouvrez une semaine pour son récap et sa comparaison à S-1"
+      >
+        <WeeklyTable weeks={weeks} total={summary.totals} month={report.month} />
       </Section>
 
       <Section title="Détail jour par jour">

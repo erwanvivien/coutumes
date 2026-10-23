@@ -7,9 +7,9 @@ shared types, URL helpers).
 
 Anyone signs in with Google and sets up their store (`/boutique`): a name and the Google Sheet
 where its monthly figures are typed (one tab per month), or demo data. `apps/web` reads the sheet
-read-only with an app-wide service account, recomputes the KPIs, and renders a dashboard
-(`/{year}-{mois}`), a presentation editor (`/{year}-{mois}/presentation`) and frozen public share
-links (`/p/{token}`). Postgres holds users, stores (one per user) and presentations (per store).
+read-only with an app-wide service account, recomputes the KPIs, and renders a month dashboard
+(`/{year}-{mois}`), a week recap vs S-1 (`/semaine/{lundi}`), a presentation editor for each
+(`…/presentation`) and frozen public share links (`/p/{token}`). Postgres holds users, stores (one per user) and presentations (per store).
 Everything a page or action reads must be scoped to the caller's store (`requireStore` /
 `currentStore` in `lib/server/access.ts`). UI copy is in French.
 
@@ -19,7 +19,12 @@ Everything a page or action reads must be scoped to the caller's store (`require
 - `apps/web/components/report`, `components/charts` — shared by dashboard, editor and share page.
 
 Keep the report flattering-but-honest: shortfalls use `--shortfall` (warm amber) with an arrow,
-never red; red (`--critical`) is for app errors only.
+never red; red (`--critical`) is for app errors only. Comparisons must be like-for-like (a week in
+progress is compared with the same days of S-1).
+
+The look follows coutumes.com (see `apps/web/README.md`, « Look »): use the tokens in
+`app/globals.css` (`--brand`, `--font-serif`, `--font-label`, `--font-display`) rather than new
+colours or fonts, and keep corners square.
 
 ## Shared code
 

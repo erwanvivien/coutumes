@@ -4,9 +4,9 @@
   position: sticky;
   top: 0;
   z-index: 10;
-  background: color-mix(in srgb, var(--page) 85%, transparent);
+  background: color-mix(in srgb, var(--page) 92%, transparent);
   backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--hairline);
 }
 
 .headerInner {
@@ -16,12 +16,20 @@
   gap: 16px;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 12px 24px;
+  padding: 14px 24px;
 }
 
+/* The store's name as a wordmark, like « COUTUMES » */
 .brand {
-  font-weight: 650;
-  letter-spacing: -0.01em;
+  overflow: hidden;
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+  min-width: 6em;
 }
 
 .monthNav {
@@ -32,9 +40,13 @@
 
 .monthTitle {
   min-width: 10ch;
-  font-size: 1.05rem;
-  font-weight: 650;
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-stretch: 62%;
+  font-weight: 800;
+  line-height: 1;
   text-align: center;
+  text-transform: uppercase;
 }
 
 .actions {
@@ -44,21 +56,29 @@
   gap: 8px;
 }
 
+/* Square buttons with small wide capitals, as on coutumes.com */
 .button,
 .buttonPrimary {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   height: 36px;
-  padding: 0 14px;
-  font-size: 0.875rem;
-  font-weight: 550;
+  padding: 0 16px;
+  font-family: var(--font-label);
+  font-size: 0.68rem;
+  font-stretch: 125%;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   white-space: nowrap;
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 999px;
+  border: 1px solid var(--ink);
+  border-radius: 0;
   cursor: pointer;
-  transition: background 120ms;
+  transition:
+    background 150ms,
+    color 150ms,
+    border-color 150ms;
 }
 
 .button:hover {
@@ -77,7 +97,9 @@
 }
 
 .buttonPrimary:hover {
-  opacity: 0.88;
+  color: var(--on-brand);
+  background: var(--brand);
+  border-color: var(--brand);
 }
 
 .iconButton {
@@ -85,8 +107,7 @@
   place-items: center;
   width: 32px;
   height: 32px;
-  border-radius: 999px;
-  color: var(--ink-secondary);
+  color: var(--ink);
 }
 
 .iconButton:hover {
@@ -122,6 +143,11 @@
   .buttonLabel {
     display: none;
   }
+
+  .button,
+  .buttonPrimary {
+    padding: 0 10px;
+  }
 }
 
 /* ——— Page body ——— */
@@ -129,7 +155,7 @@
 .main {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 40px;
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
@@ -143,7 +169,9 @@
 }
 
 .meta {
-  font-size: 0.8rem;
+  font-family: var(--font-serif);
+  font-size: 0.95rem;
+  font-style: italic;
   color: var(--ink-muted);
 }
 
@@ -161,9 +189,13 @@
   gap: 4px 16px;
 }
 
+/* Serif titles, like « Boutique » and « Notre histoire » on the site */
 .sectionTitle {
-  font-size: 1.05rem;
-  font-weight: 650;
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
 }
 
 .sectionDescription {
@@ -176,7 +208,6 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  box-shadow: var(--shadow);
 }
 
 .notice {
@@ -193,14 +224,15 @@
 }
 
 .notice h2 {
-  font-size: 1.1rem;
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 400;
 }
 
 .notice code {
   padding: 1px 6px;
   font-size: 0.85em;
   background: var(--surface-sunken);
-  border-radius: 4px;
 }
 
 .notice ol {

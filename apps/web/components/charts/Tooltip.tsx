@@ -21,10 +21,12 @@ export const Tooltip: React.FC<{
   );
 };
 
+export type Series = 'revenue' | 'objective' | 'previous';
+
 export const TooltipRow: React.FC<{
   label: string;
   value: React.ReactNode;
-  swatch?: 'revenue' | 'objective';
+  swatch?: Series;
 }> = ({ label, value, swatch }) => (
   <p className={styles.tooltipRow}>
     {swatch !== undefined && <span className={styles.lineKey} data-series={swatch} aria-hidden />}
@@ -34,7 +36,7 @@ export const TooltipRow: React.FC<{
 );
 
 export const Legend: React.FC<{
-  items: { label: string; series: 'revenue' | 'objective'; shape: 'rect' | 'line' }[];
+  items: { label: string; series: Series; shape: 'rect' | 'line' }[];
 }> = ({ items }) => (
   <ul className={styles.legend}>
     {items.map((item) => (

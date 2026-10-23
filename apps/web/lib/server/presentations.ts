@@ -1,20 +1,24 @@
 import { defaultBlocks, type Block } from '@/lib/report/blocks';
+import { periodId, type Period } from '@/lib/report/periods';
 import { presentationSchema, type Presentation } from '@/lib/schemas/database/presentation';
 import type { Snapshot } from '@/lib/schemas/report';
 import { Prisma } from '@/prisma/generated/client';
 import { randomBytes } from 'node:crypto';
 import { prismaClient } from './db';
 
-const byMonth = (storeId: string, month: string) => ({ storeId_month: { storeId, month } });
+const byPeriod = (storeId: string, period: Period) => ({
+  storeId_period: { storeId, period: periodId(period) },
+});
 
-/** The store's presentation for a month, created with the default layout on first visit. */
+/** The store's presentation for a month or week, created with the default layout on first
+ * visit. */
 export const getOrCreatePresentation = async (
   storeId: string,
-  month: string,
+  period: Period,
 ): Promise<Presentation> => {
   const row = await prismaClient.presentation.upsert({
-    where: byMonth(storeId, month),
-    create: { storeId, month, blocks: defaultBlocks() },
+    where: byPeriod(storeId, period),
+    create: { storeId, period: periodId(period), blocks: defaultBlocks(period.kind) },
     update: {},
   });
   return presentationSchema.parse(row);
@@ -22,23 +26,23 @@ export const getOrCreatePresentation = async (
 
 export const saveBlocks = async (
   storeId: string,
-  month: string,
+  period: Period,
   blocks: Block[],
 ): Promise<void> => {
-  await prismaClient.presentation.update({ where: byMonth(storeId, month), data: { blocks } });
+  await prismaClient.presentation.update({ where: byPeriod(storeId, period), data: { blocks } });
 };
 
 /** Freezes the blocks and figures behind the share link, keeping the link if one exists. */
 export const publish = async (
   storeId: string,
-  month: string,
+  period: Period,
   snapshot: Snapshot,
 ): Promise<Presentation> => {
   const existing = await prismaClient.presentation.findUniqueOrThrow({
-    where: byMonth(storeId, month),
+    where: byPeriod(storeId, period),
   });
   const row = await prismaClient.presentation.update({
-    where: byMonth(storeId, month),
+    where: byPeriod(storeId, period),
     data: {
       blocks: snapshot.blocks,
       snapshot,
@@ -50,9 +54,9 @@ export const publish = async (
   return presentationSchema.parse(row);
 };
 
-export const unpublish = async (storeId: string, month: string): Promise<void> => {
+export const unpublish = async (storeId: string, period: Period): Promise<void> => {
   await prismaClient.presentation.update({
-    where: byMonth(storeId, month),
+    where: byPeriod(storeId, period),
     data: { shareToken: null, snapshot: Prisma.DbNull, publishedAt: null },
   });
 };

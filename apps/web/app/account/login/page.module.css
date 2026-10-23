@@ -17,7 +17,7 @@
   padding: 32px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: var(--radius);
   box-shadow: var(--shadow);
 }
 
@@ -45,7 +45,7 @@
   line-height: 1.5;
   color: var(--critical);
   background: var(--critical-wash);
-  border-radius: 10px;
+  border-radius: var(--radius);
 }
 
 .providerButton {
@@ -60,7 +60,7 @@
   color: var(--ink);
   background: var(--surface);
   border: 1px solid var(--baseline);
-  border-radius: 12px;
+  border-radius: var(--radius);
   cursor: pointer;
   transition:
     background 120ms,

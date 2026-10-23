@@ -27,7 +27,7 @@ const buildTab = (tabName: string, year: number, month: number, today: Date): Ce
 
   const rows: Cell[][] = [
     ['Objectif HT', MONTH_OBJECTIVE, 'Réalisé', '', 'Diff +/-', '', '120%'],
-    ['Date', 'Réalisé', 'Objectif', 'Tickets', 'Quantités', 'IV', 'PM', 'Passages', 'TT'],
+    ['Date', 'Réalisé', 'Objectif', 'Tickets', 'Quantités', 'IV', 'PM', 'Passages', 'TT', 'Cash'],
   ];
   if (month === 10) {
     rows[1].push('Retours');
@@ -39,7 +39,7 @@ const buildTab = (tabName: string, year: number, month: number, today: Date): Ce
     const isPast = new Date(Date.UTC(year, month - 1, day)) < today;
 
     if (objective === 0 || !isPast) {
-      rows.push([label, '', objective || '', '', '', '#DIV/0!', '#DIV/0!', '', '#DIV/0!']);
+      rows.push([label, '', objective || '', '', '', '#DIV/0!', '#DIV/0!', '', '#DIV/0!', '']);
       continue;
     }
 
@@ -49,7 +49,9 @@ const buildTab = (tabName: string, year: number, month: number, today: Date): Ce
     const tickets = Math.max(1, Math.round(revenue / basket));
     const items = Math.round(tickets * (1.6 + pseudoRandom(seed + 2) * 0.7));
     const visitors = Math.round(tickets / (0.18 + pseudoRandom(seed + 3) * 0.1));
-    const row: Cell[] = [label, revenue, objective, tickets, items, '', '', visitors, ''];
+    // Roughly a fifth of the takings in cash
+    const cash = Math.round(revenue * (0.12 + pseudoRandom(seed + 5) * 0.16));
+    const row: Cell[] = [label, revenue, objective, tickets, items, '', '', visitors, '', cash];
     if (month === 10) {
       row.push(Math.round(pseudoRandom(seed + 4) * 4));
     }

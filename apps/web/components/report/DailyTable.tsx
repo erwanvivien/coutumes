@@ -10,9 +10,20 @@ import {
 } from '@/lib/report/format';
 import { computeTotals, type Totals } from '@/lib/report/kpis';
 import { weekdayIndex, weekdayName } from '@/lib/report/months';
-import type { MonthReport } from '@/lib/report/types';
+import type { DayEntry, MonthReport } from '@/lib/report/types';
+import type { WeekRecap } from '@/lib/report/weeks';
 import { Delta } from './Delta';
 import styles from './report.module.css';
+
+type DayRow = {
+  key: string;
+  /** "lun." */
+  weekday: string;
+  /** "12", or "1er nov." when the table spans two months */
+  label: string;
+  entry?: DayEntry;
+  startsWeek: boolean;
+};
 
 const RatioCells: React.FC<{ totals: Totals }> = ({ totals }) => (
   <>
@@ -21,8 +32,15 @@ const RatioCells: React.FC<{ totals: Totals }> = ({ totals }) => (
   </>
 );
 
-export const DailyTable: React.FC<{ report: MonthReport }> = ({ report }) => {
-  const total = computeTotals(report.days);
+const DayTable: React.FC<{ rows: DayRow[]; extraColumns: string[]; totalLabel: string }> = ({
+  rows,
+  extraColumns,
+  totalLabel,
+}) => {
+  const entries = rows.flatMap((row) => (row.entry === undefined ? [] : [row.entry]));
+  const total = computeTotals(entries);
+  const hasCash = entries.some((entry) => entry.cash !== undefined);
+  const cashTotal = entries.reduce((sum, entry) => sum + (entry.cash ?? 0), 0);
 
   return (
     <div className={styles.tableScroll}>
@@ -39,7 +57,8 @@ export const DailyTable: React.FC<{ report: MonthReport }> = ({ report }) => {
             <th scope="col">IV</th>
             <th scope="col">Passages</th>
             <th scope="col">TT</th>
-            {report.extraColumns.map((column) => (
+            {hasCash && <th scope="col">Cash</th>}
+            {extraColumns.map((column) => (
               <th scope="col" key={column}>
                 {column}
               </th>
@@ -47,35 +66,30 @@ export const DailyTable: React.FC<{ report: MonthReport }> = ({ report }) => {
           </tr>
         </thead>
         <tbody>
-          {report.days.map((day) => {
-            const totals = computeTotals([day]);
-            const isEmpty = day.revenue === undefined;
+          {rows.map(({ key, weekday, label, entry, startsWeek }) => {
+            const totals = computeTotals(entry === undefined ? [] : [entry]);
+            const isEmpty = entry?.revenue === undefined;
             return (
               <tr
-                key={day.day}
-                className={cx(
-                  isEmpty && styles.rowEmpty,
-                  weekdayIndex(report.month, day.day) === 0 && styles.rowWeekStart,
-                )}
+                key={key}
+                className={cx(isEmpty && styles.rowEmpty, startsWeek && styles.rowWeekStart)}
               >
                 <th scope="row">
-                  <span className={styles.weekday}>
-                    {weekdayName(report.month, day.day).slice(0, 3)}.
-                  </span>{' '}
-                  {day.day}
+                  <span className={styles.weekday}>{weekday}</span> {label}
                 </th>
-                <td>{formatEuro(day.revenue)}</td>
-                <td>{formatEuro(day.objective)}</td>
+                <td>{formatEuro(entry?.revenue)}</td>
+                <td>{formatEuro(entry?.objective)}</td>
                 <td>
                   <Delta value={isEmpty ? undefined : totals.diff} format={formatSignedEuro} />
                 </td>
-                <td>{formatInteger(day.tickets)}</td>
-                <td>{formatInteger(day.items)}</td>
+                <td>{formatInteger(entry?.tickets)}</td>
+                <td>{formatInteger(entry?.items)}</td>
                 <RatioCells totals={totals} />
-                <td>{formatInteger(day.visitors)}</td>
+                <td>{formatInteger(entry?.visitors)}</td>
                 <td>{formatPercentPrecise(totals.tt)}</td>
-                {report.extraColumns.map((column) => (
-                  <td key={column}>{formatNumber(day.extras[column])}</td>
+                {hasCash && <td>{formatEuro(entry?.cash)}</td>}
+                {extraColumns.map((column) => (
+                  <td key={column}>{formatNumber(entry?.extras[column])}</td>
                 ))}
               </tr>
             );
@@ -83,9 +97,9 @@ export const DailyTable: React.FC<{ report: MonthReport }> = ({ report }) => {
         </tbody>
         <tfoot>
           <tr>
-            <th scope="row">Total</th>
+            <th scope="row">{totalLabel}</th>
             <td>{formatEuro(total.daysFilled > 0 ? total.revenue : undefined)}</td>
-            <td>{formatEuro(total.objective)}</td>
+            <td>{formatEuro(total.objective || undefined)}</td>
             <td>
               <Delta
                 value={total.daysFilled > 0 ? total.diff : undefined}
@@ -97,14 +111,58 @@ export const DailyTable: React.FC<{ report: MonthReport }> = ({ report }) => {
             <RatioCells totals={total} />
             <td>{formatInteger(total.visitors || undefined)}</td>
             <td>{formatPercentPrecise(total.tt)}</td>
-            {report.extraColumns.map((column) => (
+            {hasCash && <td>{formatEuro(cashTotal)}</td>}
+            {extraColumns.map((column) => (
               <td key={column}>
-                {formatNumber(report.days.reduce((sum, day) => sum + (day.extras[column] ?? 0), 0))}
+                {formatNumber(entries.reduce((sum, entry) => sum + (entry.extras[column] ?? 0), 0))}
               </td>
             ))}
           </tr>
         </tfoot>
       </table>
     </div>
+  );
+};
+
+const shortWeekday = (name: string) => `${name.slice(0, 3)}.`;
+
+// "26 oct." — only when a week straddles two months
+const dayAndMonth = new Intl.DateTimeFormat('fr-FR', {
+  day: 'numeric',
+  month: 'short',
+  timeZone: 'UTC',
+});
+
+export const DailyTable: React.FC<{ report: MonthReport }> = ({ report }) => (
+  <DayTable
+    totalLabel="Total"
+    extraColumns={report.extraColumns}
+    rows={report.days.map((day) => ({
+      key: String(day.day),
+      weekday: shortWeekday(weekdayName(report.month, day.day)),
+      label: String(day.day),
+      entry: day,
+      startsWeek: weekdayIndex(report.month, day.day) === 0,
+    }))}
+  />
+);
+
+/** The seven days of a week, including those without a tab (shown empty). */
+export const WeekDayTable: React.FC<{ recap: WeekRecap }> = ({ recap }) => {
+  const spansMonths = recap.days[0].month.month !== recap.days[6].month.month;
+  return (
+    <DayTable
+      totalLabel="Semaine"
+      extraColumns={recap.extraColumns}
+      rows={recap.days.map((day) => ({
+        key: day.date,
+        weekday: shortWeekday(weekdayName(day.month, day.day)),
+        label: spansMonths
+          ? dayAndMonth.format(new Date(`${day.date}T00:00:00Z`))
+          : String(day.day),
+        entry: day.entry,
+        startsWeek: false,
+      }))}
+    />
   );
 };

@@ -8,7 +8,7 @@
   padding: 32px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: var(--radius);
   box-shadow: var(--shadow);
 }
 
@@ -66,7 +66,7 @@
   color: var(--ink);
   background: var(--surface);
   border: 1px solid var(--baseline);
-  border-radius: 10px;
+  border-radius: var(--radius);
   outline: none;
 }
 
@@ -89,7 +89,7 @@
   font-size: 0.875rem;
   line-height: 1.5;
   background: var(--surface-sunken);
-  border-radius: 10px;
+  border-radius: var(--radius);
 }
 
 .shareRow {
@@ -107,7 +107,7 @@
   font-size: 0.8rem;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius);
 }
 
 .checkbox {
@@ -129,5 +129,5 @@
   line-height: 1.5;
   color: var(--critical);
   background: var(--critical-wash);
-  border-radius: 10px;
+  border-radius: var(--radius);
 }

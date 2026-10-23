@@ -72,16 +72,16 @@ model Store {
   @@map("store")
 }
 
-/// A month's report as presented to management: the editable blocks, and — once published — a
-/// frozen copy of the blocks and figures behind an unguessable share link.
+/// A month's or a week's report as presented to management: the editable blocks, and — once
+/// published — a frozen copy of the blocks and figures behind an unguessable share link.
 model Presentation {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
 
   storeId String @map("store_id") @db.Uuid
   Store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
 
-  /// "2026-11"
-  month  String @db.VarChar(7)
+  /// "2026-11" for a month, "2026-10-12" (its Monday) for a week
+  period String @db.VarChar(10)
   blocks Json   @db.JsonB
 
   shareToken  String?   @unique @map("share_token")
@@ -91,6 +91,6 @@ model Presentation {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@unique([storeId, month])
+  @@unique([storeId, period])
   @@map("presentation")
 }

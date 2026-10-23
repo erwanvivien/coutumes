@@ -9,7 +9,8 @@ export const presentationSchema = z.object({
   id: uuidSchema,
   storeId: uuidSchema,
 
-  month: z.string().regex(/^\d{4}-\d{2}$/),
+  /** "2026-11" or a week's Monday "2026-10-12" — see periodId */
+  period: z.string().regex(/^\d{4}-\d{2}(-\d{2})?$/),
   blocks: blocksSchema,
 
   shareToken: nullToUndefinedSchema(z.string()),

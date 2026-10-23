@@ -35,7 +35,7 @@ const PresentationPage: React.FC<Props> = async ({ params }) => {
   if (report === undefined) {
     return (
       <>
-        <AppHeader storeName={store.name} month={month} />
+        <AppHeader storeName={store.name} />
         <main className={layout.main}>
           {loaded.kind === 'ok' ? (
             <Notice title={`Aucun onglet pour ${monthLabel(month)}`}>
@@ -49,13 +49,14 @@ const PresentationPage: React.FC<Props> = async ({ params }) => {
     );
   }
 
-  const presentation = await getOrCreatePresentation(store.id, monthId(month));
+  const period = { kind: 'month', month } as const;
+  const presentation = await getOrCreatePresentation(store.id, period);
 
   return (
     <PresentationEditor
-      slug={slug}
+      period={period}
       storeName={store.name}
-      report={report}
+      context={{ kind: 'month', report }}
       initialBlocks={presentation.blocks}
       initialShareToken={presentation.shareToken}
       initialPublishedAt={presentation.publishedAt?.toISOString()}

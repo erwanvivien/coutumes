@@ -27,5 +27,7 @@ describe('demo sheet', () => {
       );
     }
     expect(reports[1].extraColumns).toEqual(['Retours']);
+    const filled = reports.flatMap((report) => report.days).filter((day) => day.revenue);
+    expect(filled.every((day) => day.cash !== undefined && day.cash < day.revenue!)).toBe(true);
   });
 });

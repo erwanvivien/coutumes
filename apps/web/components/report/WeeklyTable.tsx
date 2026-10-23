@@ -8,8 +8,15 @@ import {
   formatPercentPrecise,
   formatSignedEuro,
 } from '@/lib/report/format';
+import type { MonthKey } from '@/lib/report/months';
+import { dateOf, mondayOf } from '@/lib/report/weeks';
+import { weekPath } from '@/lib/urls';
+import Link from 'next/link';
 import { Delta } from './Delta';
 import styles from './report.module.css';
+
+const weekLabel = (week: WeekGroup) =>
+  week.from === week.to ? `Le ${week.from}` : `Du ${week.from} au ${week.to}`;
 
 const TotalsCells: React.FC<{ totals: Totals }> = ({ totals }) => (
   <>
@@ -27,7 +34,13 @@ const TotalsCells: React.FC<{ totals: Totals }> = ({ totals }) => (
   </>
 );
 
-export const WeeklyTable: React.FC<{ weeks: WeekGroup[]; total: Totals }> = ({ weeks, total }) => (
+/** One row per week of the month. With `month`, each week links to its recap (the dashboard;
+ * presentations leave it out). */
+export const WeeklyTable: React.FC<{ weeks: WeekGroup[]; total: Totals; month?: MonthKey }> = ({
+  weeks,
+  total,
+  month,
+}) => (
   <div className={styles.tableScroll}>
     <table className={styles.table}>
       <thead>
@@ -48,7 +61,16 @@ export const WeeklyTable: React.FC<{ weeks: WeekGroup[]; total: Totals }> = ({ w
         {weeks.map((week) => (
           <tr key={week.from}>
             <th scope="row">
-              {week.from === week.to ? `Le ${week.from}` : `Du ${week.from} au ${week.to}`}
+              {month === undefined ? (
+                weekLabel(week)
+              ) : (
+                <Link
+                  href={weekPath(mondayOf(dateOf(month, week.from)))}
+                  className={styles.rowLink}
+                >
+                  {weekLabel(week)}
+                </Link>
+              )}
             </th>
             <TotalsCells totals={week.totals} />
           </tr>

@@ -17,7 +17,7 @@ export const RefreshButton: React.FC = () => {
       title="Relire le Google Sheet"
     >
       <RefreshCw size={16} className={isPending ? styles.spin : undefined} aria-hidden />
-      {isPending ? 'Lecture…' : 'Rafraîchir'}
+      <span className={styles.buttonLabel}>{isPending ? 'Lecture…' : 'Rafraîchir'}</span>
     </button>
   );
 };

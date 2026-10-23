@@ -1,56 +1,53 @@
-import { monthLabel, monthSlug, type MonthKey } from '@/lib/report/months';
-import { accountLogoutUrl, homePath, monthPath, storeSettingsPath } from '@/lib/urls';
+import { accountLogoutUrl, homePath, storeSettingsPath } from '@/lib/urls';
 import { ChevronLeft, ChevronRight, LogOut, Store } from 'lucide-react';
 import Link from 'next/link';
 import styles from './layout.module.css';
 
-/** Top bar of the signed-in pages: store name, month switcher and page actions. */
+type NavLink = { href: string; label: string };
+
+/** The period a page shows, with links to the one before and after (when the sheet has them). */
+export type PeriodNav = {
+  title: string;
+  /** "Changer de mois", "Changer de semaine" */
+  label: string;
+  previous?: NavLink;
+  next?: NavLink;
+};
+
+const Arrow: React.FC<{ link?: NavLink; children: React.ReactNode }> = ({ link, children }) =>
+  link === undefined ? (
+    <span className={styles.iconButton} aria-hidden data-disabled>
+      {children}
+    </span>
+  ) : (
+    <Link href={link.href} className={styles.iconButton} aria-label={link.label} title={link.label}>
+      {children}
+    </Link>
+  );
+
+/** Top bar of the signed-in pages: store name, period switcher and page actions. */
 export const AppHeader: React.FC<{
   storeName: string;
-  month?: MonthKey;
-  previous?: MonthKey;
-  next?: MonthKey;
+  nav?: PeriodNav;
   actions?: React.ReactNode;
-}> = ({ storeName, month, previous, next, actions }) => (
+}> = ({ storeName, nav, actions }) => (
   <header className={styles.header}>
     <div className={styles.headerInner}>
       <Link href={homePath()} className={styles.brand}>
         {storeName}
       </Link>
 
-      {month === undefined ? (
+      {nav === undefined ? (
         <span />
       ) : (
-        <nav className={styles.monthNav} aria-label="Changer de mois">
-          {previous !== undefined ? (
-            <Link
-              href={monthPath(monthSlug(previous))}
-              className={styles.iconButton}
-              aria-label={monthLabel(previous)}
-              title={monthLabel(previous)}
-            >
-              <ChevronLeft size={18} />
-            </Link>
-          ) : (
-            <span className={styles.iconButton} aria-hidden data-disabled>
-              <ChevronLeft size={18} />
-            </span>
-          )}
-          <h1 className={styles.monthTitle}>{monthLabel(month)}</h1>
-          {next !== undefined ? (
-            <Link
-              href={monthPath(monthSlug(next))}
-              className={styles.iconButton}
-              aria-label={monthLabel(next)}
-              title={monthLabel(next)}
-            >
-              <ChevronRight size={18} />
-            </Link>
-          ) : (
-            <span className={styles.iconButton} aria-hidden data-disabled>
-              <ChevronRight size={18} />
-            </span>
-          )}
+        <nav className={styles.monthNav} aria-label={nav.label}>
+          <Arrow link={nav.previous}>
+            <ChevronLeft size={18} />
+          </Arrow>
+          <h1 className={styles.monthTitle}>{nav.title}</h1>
+          <Arrow link={nav.next}>
+            <ChevronRight size={18} />
+          </Arrow>
         </nav>
       )}
 

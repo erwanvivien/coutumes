@@ -1,22 +1,29 @@
 :root {
   color-scheme: light;
 
-  /* Surfaces & ink */
-  --page: #f6f5f1;
-  --surface: #fcfcfb;
-  --surface-sunken: #f0efec;
-  --ink: #0b0b0b;
-  --ink-secondary: #52514e;
-  --ink-muted: #898781;
-  --hairline: #e1e0d9;
-  --baseline: #c3c2b7;
-  --border: rgba(11, 11, 11, 0.1);
-  --shadow: 0 1px 2px rgba(11, 11, 11, 0.04), 0 4px 16px rgba(11, 11, 11, 0.04);
+  /* Coutumes: white page, black ink, warm beige for quiet surfaces, one saturated orange */
+  --page: #ffffff;
+  --surface: #ffffff;
+  --surface-sunken: #f6f2eb;
+  --ink: #000000;
+  --ink-secondary: #3a3935;
+  --ink-muted: #6e6c66;
+  --hairline: #e7e7e5;
+  --baseline: #b9b5aa;
+  --border: rgba(0, 0, 0, 0.14);
+  --shadow: none;
 
-  /* Data: the réalisé is the one saturated colour; the objective is a quiet reference */
-  --series-revenue: #2a78d6;
+  --brand: #f9af26;
+  /* Text on the orange */
+  --on-brand: #000000;
+  --beige: #ede9df;
+
+  /* Data: the réalisé is ink; S-1 a beige column with an outline; the objective a quiet tick */
+  --series-revenue: #000000;
+  --series-previous: #e2dccd;
+  --series-previous-edge: #8f8a80;
   --series-objective: #8f8a80;
-  --series-revenue-wash: rgba(42, 120, 214, 0.1);
+  --series-revenue-wash: rgba(0, 0, 0, 0.06);
 
   /* Performance vs. objective — always paired with an arrow and a sign, never colour alone.
    * A shortfall is a warm amber, not an alarm red: the report shows the month in a fair light. */
@@ -27,10 +34,17 @@
   --critical: #d03b3b;
   --critical-wash: rgba(208, 59, 59, 0.1);
 
-  --accent: #1c5cab;
-  --radius: 12px;
+  --accent: #000000;
+  /* Square corners, like the brand's buttons and blocks */
+  --radius: 0;
 
-  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  --font-serif: var(--font-newsreader), 'Times New Roman', serif;
+  /* Body copy and figures */
+  --font-sans: var(--font-archivo), system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* Small uppercase labels and buttons: use with font-stretch: 125% */
+  --font-label: var(--font-sans);
+  /* Big uppercase headlines: use with font-stretch: 62% */
+  --font-display: var(--font-sans);
 
   /* Kept for the template's legacy pages */
   --background: var(--page);
@@ -41,23 +55,25 @@
 @media (prefers-color-scheme: dark) {
   :root:where(:not([data-theme='light'])) {
     color-scheme: dark;
-    --page: #0d0d0d;
-    --surface: #1a1a19;
-    --surface-sunken: #232322;
-    --ink: #f0efec;
-    --ink-secondary: #c3c2b7;
-    --ink-muted: #898781;
-    --hairline: #2c2c2a;
-    --baseline: #383835;
-    --border: rgba(255, 255, 255, 0.1);
-    --shadow: none;
-    --series-revenue: #3987e5;
+    --page: #0c0c0b;
+    --surface: #151513;
+    --surface-sunken: #1f1e1b;
+    --ink: #f4f1ea;
+    --ink-secondary: #cfcbc0;
+    --ink-muted: #9a958b;
+    --hairline: #2b2a27;
+    --baseline: #4a4843;
+    --border: rgba(255, 255, 255, 0.14);
+    --beige: #2b2924;
+    --series-revenue: #f4f1ea;
+    --series-previous: #3b3830;
+    --series-previous-edge: #9a958b;
     --series-objective: #9a958b;
-    --series-revenue-wash: rgba(57, 135, 229, 0.14);
+    --series-revenue-wash: rgba(244, 241, 234, 0.1);
     --good: #0ca30c;
     --shortfall: #f0a35e;
     --critical: #e66767;
-    --accent: #86b6ef;
+    --accent: #f4f1ea;
   }
 }
 
@@ -65,22 +81,25 @@
 :root[data-theme='light'],
 .theme-light {
   color-scheme: light;
-  --page: #f6f5f1;
+  --page: #f6f2eb;
   --surface: #ffffff;
-  --surface-sunken: #f0efec;
-  --ink: #0b0b0b;
-  --ink-secondary: #52514e;
-  --ink-muted: #898781;
-  --hairline: #e1e0d9;
-  --baseline: #c3c2b7;
-  --border: rgba(11, 11, 11, 0.1);
-  --series-revenue: #2a78d6;
+  --surface-sunken: #f6f2eb;
+  --ink: #000000;
+  --ink-secondary: #3a3935;
+  --ink-muted: #6e6c66;
+  --hairline: #e7e7e5;
+  --baseline: #b9b5aa;
+  --border: rgba(0, 0, 0, 0.14);
+  --beige: #ede9df;
+  --series-revenue: #000000;
+  --series-previous: #e2dccd;
+  --series-previous-edge: #8f8a80;
   --series-objective: #8f8a80;
-  --series-revenue-wash: rgba(42, 120, 214, 0.1);
+  --series-revenue-wash: rgba(0, 0, 0, 0.06);
   --good: #006300;
   --shortfall: #a85a0b;
   --critical: #d03b3b;
-  --accent: #1c5cab;
+  --accent: #000000;
 
   /* Inherited text colour was resolved against the outer (possibly dark) theme */
   color: var(--ink);
@@ -103,6 +122,7 @@ body {
   color: var(--ink);
   background: var(--page);
   font-family: var(--font-sans);
+  font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -125,6 +145,12 @@ button {
 
 .tabular {
   font-variant-numeric: tabular-nums;
+}
+
+/* Keyboard focus: a plain ink outline, square like everything else */
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
 }
 
 /* Flex + overflow on the page root makes Chrome clip printed content after a few pages */

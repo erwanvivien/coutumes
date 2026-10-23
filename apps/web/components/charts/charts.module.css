@@ -33,6 +33,7 @@
 .yTick,
 .xTick,
 .endLabel {
+  font-family: var(--font-sans);
   font-size: 11px;
   font-variant-numeric: tabular-nums;
   fill: var(--ink-muted);
@@ -58,6 +59,12 @@
 .column {
   fill: var(--series-revenue);
   transition: opacity 120ms;
+}
+
+.columnPrevious {
+  fill: var(--series-previous);
+  stroke: var(--series-previous-edge);
+  stroke-width: 1;
 }
 
 .targetTick {
@@ -125,16 +132,19 @@
   min-width: 170px;
   padding: 10px 12px;
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--ink);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
   pointer-events: none;
 }
 
 .tooltipTitle {
   margin-bottom: 6px;
-  font-size: 0.75rem;
+  font-family: var(--font-label);
+  font-size: 0.62rem;
+  font-stretch: 125%;
   font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: var(--ink-secondary);
 }
 
@@ -182,13 +192,11 @@
 .rectKey {
   width: 10px;
   height: 10px;
-  border-radius: 2px;
 }
 
 .lineKey {
   width: 14px;
   height: 2px;
-  border-radius: 1px;
 }
 
 .rectKey[data-series='revenue'],
@@ -199,6 +207,12 @@
 .rectKey[data-series='objective'],
 .lineKey[data-series='objective'] {
   background: var(--series-objective);
+}
+
+.rectKey[data-series='previous'],
+.lineKey[data-series='previous'] {
+  background: var(--series-previous);
+  box-shadow: inset 0 0 0 1px var(--series-previous-edge);
 }
 
 @media print {
@@ -212,6 +226,7 @@
   .rectKey,
   .lineKey,
   .column,
+  .columnPrevious,
   .area {
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;

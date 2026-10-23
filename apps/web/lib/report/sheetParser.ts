@@ -4,7 +4,7 @@ import type { DayEntry, MonthReport } from './types';
 /** A cell as returned by the Sheets API with UNFORMATTED_VALUE + FORMATTED_STRING dates. */
 export type Cell = string | number | boolean | null | undefined;
 
-type KnownField = 'revenue' | 'objective' | 'tickets' | 'items' | 'visitors';
+type KnownField = 'revenue' | 'objective' | 'tickets' | 'items' | 'visitors' | 'cash';
 
 // Header (normalized) → field. Anything not listed here and not computed becomes an extra column.
 const KNOWN_HEADERS: Record<string, KnownField> = {
@@ -21,6 +21,11 @@ const KNOWN_HEADERS: Record<string, KnownField> = {
   articles: 'items',
   passages: 'visitors',
   entrees: 'visitors',
+  cash: 'cash',
+  'cash caisse': 'cash',
+  'montant cash': 'cash',
+  'montant cash caisse': 'cash',
+  especes: 'cash',
 };
 
 // Columns the sheet computes with formulas — we recompute them ourselves, so they're skipped.
@@ -74,6 +79,7 @@ const FIELD_LABELS: Record<KnownField, string> = {
   tickets: 'Tickets',
   items: 'Quantités',
   visitors: 'Passages',
+  cash: 'Cash',
 };
 
 /** Turns a month tab's grid into a MonthReport, plus the problems worth telling the owner about
@@ -152,6 +158,7 @@ export const parseMonthTab = ({
       tickets: read(known.tickets),
       items: read(known.items),
       visitors: read(known.visitors),
+      cash: read(known.cash),
       extras: Object.fromEntries(extras.map(({ header, column }) => [header, read(column)])),
     });
   }
@@ -162,6 +169,7 @@ export const parseMonthTab = ({
   if (known.revenue === undefined) {
     issues.push('Colonne « Réalisé » introuvable : le chiffre d’affaires reste vide');
   }
+  // Cash is optional: only some stores track it
   const missing = (['objective', 'tickets', 'items', 'visitors'] as const).filter(
     (field) => known[field] === undefined,
   );

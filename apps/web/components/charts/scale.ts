@@ -24,20 +24,6 @@ export const linear =
     return d1 === d0 ? r0 : r0 + ((value - d0) / (d1 - d0)) * (r1 - r0);
   };
 
-/** SVG path for a column with a 4px rounded top and a square base. */
-export const columnPath = (x: number, y: number, width: number, baseline: number): string => {
-  const height = baseline - y;
-  const r = Math.min(4, width / 2, height);
-  if (height <= 0) {
-    return '';
-  }
-  return [
-    `M${x},${baseline}`,
-    `V${y + r}`,
-    `Q${x},${y} ${x + r},${y}`,
-    `H${x + width - r}`,
-    `Q${x + width},${y} ${x + width},${y + r}`,
-    `V${baseline}`,
-    'Z',
-  ].join(' ');
-};
+/** SVG path for a column: square, like the rest of the Coutumes look. */
+export const columnPath = (x: number, y: number, width: number, baseline: number): string =>
+  baseline - y <= 0 ? '' : `M${x},${baseline} V${y} H${x + width} V${baseline} Z`;

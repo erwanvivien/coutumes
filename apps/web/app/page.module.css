@@ -15,14 +15,11 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  transition:
-    transform 120ms,
-    border-color 120ms;
+  transition: border-color 150ms;
 }
 
 .card:hover {
-  transform: translateY(-1px);
-  border-color: var(--baseline);
+  border-color: var(--ink);
 }
 
 .cardCurrent {
@@ -55,39 +52,97 @@
 }
 
 .cardTitle {
-  font-weight: 600;
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
 }
 
 .badge {
-  padding: 2px 8px;
-  font-size: 0.7rem;
+  padding: 3px 8px;
+  font-family: var(--font-label);
+  font-size: 0.6rem;
+  font-stretch: 125%;
   font-weight: 600;
-  color: var(--accent);
-  background: var(--series-revenue-wash);
-  border-radius: 999px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--on-brand);
+  background: var(--brand);
 }
 
 .cardValue {
-  font-size: 1.5rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-stretch: 62%;
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  line-height: 1;
 }
 
 .progress {
   height: 6px;
   overflow: hidden;
-  background: var(--surface-sunken);
-  border-radius: 999px;
+  background: var(--beige);
 }
 
 .progress > span {
   display: block;
   height: 100%;
-  background: var(--series-revenue);
-  border-radius: 999px;
+  background: var(--brand);
 }
 
 .cardFoot {
   font-size: 0.8rem;
   color: var(--ink-muted);
+}
+
+/* ——— Latest week ——— */
+
+.weekCard {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 24px;
+  padding: 20px 24px;
+  color: var(--on-brand);
+  background: var(--brand);
+  /* Deltas sit on the orange: darker tones keep them readable (≥ 4.5:1) */
+  --good: #004d00;
+  --shortfall: #5e3000;
+}
+
+.weekMain {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.weekEyebrow {
+  font-family: var(--font-label);
+  font-size: 0.7rem;
+  font-stretch: 125%;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.weekTitle {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-stretch: 62%;
+  font-weight: 800;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.weekFigures {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  margin-top: 6px;
+}
+
+/* The brand orange is a light background: keep ink-coloured text and a darker amber on it */
+.weekCard .cardFoot {
+  color: var(--on-brand);
 }

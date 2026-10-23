@@ -12,6 +12,8 @@ export type DayEntry = {
   items?: number;
   /** Passages (entrées en magasin) */
   visitors?: number;
+  /** Montant encaissé en espèces (optional "Cash" column) */
+  cash?: number;
   /** Any other column the sheet has, keyed by its header */
   extras: Record<string, number | undefined>;
 };

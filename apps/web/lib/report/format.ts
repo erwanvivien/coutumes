@@ -14,6 +14,7 @@ const decimal = new Intl.NumberFormat('fr-FR', {
   minimumFractionDigits: 2,
   maximumFractionDigits: 2,
 });
+const oneDecimal = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 });
 const upTo2Decimals = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 2 });
 const percent = new Intl.NumberFormat('fr-FR', { style: 'percent', maximumFractionDigits: 0 });
 const percentPrecise = new Intl.NumberFormat('fr-FR', {
@@ -55,3 +56,19 @@ export const formatDateTime = (iso: string): string =>
     minute: '2-digit',
     timeZone: 'Europe/Paris',
   });
+
+const signed = (value: number, text: string) => `${value >= 0 ? '+' : '−'}${text}`;
+
+/** "+12 %" / "−25 %" — the recap's "Évolution vs S-1" */
+export const formatSignedPercent = orEmpty((value) =>
+  signed(value, percent.format(Math.abs(value))),
+);
+
+/** "+3 pts", "+0,4 pt" — change of a rate (TT), in percentage points */
+export const formatSignedPoints = orEmpty((value) => {
+  const points = Math.abs(value) * 100;
+  return signed(value, `${oneDecimal.format(points)} pt${points >= 2 ? 's' : ''}`);
+});
+
+/** "24,6" — daily averages of counts (tickets, articles per day) */
+export const formatOneDecimal = orEmpty((value) => oneDecimal.format(value));

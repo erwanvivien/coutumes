@@ -33,7 +33,7 @@ export const TextBlockEditor: React.FC<{
 
   if (!isEditing) {
     return (
-      <p
+      <div
         className={`${presentation.text} ${styles.clickToEdit}`}
         role="button"
         tabIndex={0}
@@ -46,7 +46,7 @@ export const TextBlockEditor: React.FC<{
         }}
       >
         <RichText text={text} />
-      </p>
+      </div>
     );
   }
 
@@ -65,7 +65,9 @@ export const TextBlockEditor: React.FC<{
         >
           <Bold size={14} />
         </button>
-        <span className={styles.hint}>Entourez de **deux étoiles** pour mettre en gras</span>
+        <span className={styles.hint}>
+          **deux étoiles** autour pour le gras · « - » en début de ligne pour une liste
+        </span>
       </div>
       <textarea
         ref={textareaRef}
