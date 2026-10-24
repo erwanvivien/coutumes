@@ -39,14 +39,17 @@
 }
 
 .monthTitle {
-  min-width: 10ch;
+  overflow: hidden;
+  width: 22ch;
   font-family: var(--font-display);
   font-size: 1.6rem;
   font-stretch: 62%;
   font-weight: 800;
   line-height: 1;
   text-align: center;
+  text-overflow: ellipsis;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .actions {
@@ -138,6 +141,10 @@
     grid-column: 1 / -1;
     grid-row: 2;
     justify-content: center;
+  }
+
+  .monthTitle {
+    width: 16ch;
   }
 
   .buttonLabel {
