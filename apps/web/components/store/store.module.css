@@ -50,6 +50,16 @@
   border: none;
 }
 
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.row > .field {
+  flex: 1 1 200px;
+}
+
 .field:disabled {
   opacity: 0.5;
 }

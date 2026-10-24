@@ -38,6 +38,12 @@ enum Provider {
   google
 }
 
+/// Whether the figures typed into a store's sheet are tax-excluded or tax-included.
+enum RevenueBasis {
+  ht
+  ttc
+}
+
 model UserAuth {
   userId String @map("user_id") @db.Uuid
   User   User   @relation(fields: [userId], references: [id])
@@ -63,6 +69,12 @@ model Store {
   /// Unique: a sheet belongs to one store, so nobody can attach (and read) someone else's sheet
   sheetId     String? @unique @map("sheet_id")
   useDemoData Boolean @default(false) @map("use_demo_data")
+
+  /// Whether "Réalisé" and "Objectif" in the sheet are already tax-excluded (the default) or
+  /// include VAT — figures are always normalized to HT before any KPI is computed.
+  revenueBasis RevenueBasis @default(ht) @map("revenue_basis")
+  /// VAT rate used to convert TTC figures to HT, as a fraction (0.2 = 20%)
+  vatRate      Float        @default(0.2) @map("vat_rate")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")

@@ -29,7 +29,13 @@ const NewStorePage: React.FC = async () => {
             action={createStoreSettings}
             isNew
             serviceAccountEmail={serviceAccountEmail()}
-            initial={{ name: '', sheet: '', useDemoData: false }}
+            initial={{
+              name: '',
+              sheet: '',
+              useDemoData: false,
+              vatRatePercent: 20,
+              revenueBasis: 'ht',
+            }}
           />
         </div>
       </main>

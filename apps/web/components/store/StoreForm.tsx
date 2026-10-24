@@ -9,7 +9,13 @@ export type StoreFormState = { error?: string };
 
 export const StoreForm: React.FC<{
   action: (previous: StoreFormState, formData: FormData) => Promise<StoreFormState>;
-  initial: { name: string; sheet: string; useDemoData: boolean };
+  initial: {
+    name: string;
+    sheet: string;
+    useDemoData: boolean;
+    vatRatePercent: number;
+    revenueBasis: 'ht' | 'ttc';
+  };
   serviceAccountEmail?: string;
   isNew: boolean;
 }> = ({ action, initial, serviceAccountEmail, isNew }) => {
@@ -19,6 +25,8 @@ export const StoreForm: React.FC<{
   const [name, setName] = useState(initial.name);
   const [sheet, setSheet] = useState(initial.sheet);
   const [useDemoData, setUseDemoData] = useState(initial.useDemoData);
+  const [revenueBasis, setRevenueBasis] = useState(initial.revenueBasis);
+  const [vatRatePercent, setVatRatePercent] = useState(initial.vatRatePercent);
   const [copied, setCopied] = useState(false);
 
   const submitLabel = isNew ? 'Créer ma boutique' : 'Enregistrer';
@@ -96,6 +104,41 @@ export const StoreForm: React.FC<{
           <span className={styles.help}> — pour découvrir l’outil avant de relier le classeur</span>
         </span>
       </label>
+
+      <div className={styles.row}>
+        <label className={styles.field}>
+          <span className={styles.label}>Chiffres saisis dans le classeur</span>
+          <select
+            name="revenueBasis"
+            value={revenueBasis}
+            onChange={(event) => setRevenueBasis(event.target.value as 'ht' | 'ttc')}
+            className={styles.input}
+          >
+            <option value="ht">HT (hors taxe)</option>
+            <option value="ttc">TTC (toutes taxes comprises)</option>
+          </select>
+        </label>
+
+        <label className={styles.field}>
+          <span className={styles.label}>Taux de TVA</span>
+          <input
+            type="number"
+            name="vatRate"
+            value={vatRatePercent}
+            onChange={(event) => setVatRatePercent(Number(event.target.value))}
+            min={0}
+            max={100}
+            step={0.1}
+            disabled={revenueBasis === 'ht'}
+            className={styles.input}
+          />
+          <span className={styles.help}>
+            {revenueBasis === 'ttc'
+              ? 'Utilisé pour ramener les chiffres en HT partout dans le tableau de bord.'
+              : 'Utile seulement si vous passez un jour en TTC.'}
+          </span>
+        </label>
+      </div>
 
       {state.error !== undefined && (
         <p className={styles.error} role="alert">

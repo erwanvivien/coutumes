@@ -1,4 +1,4 @@
-import { storeSchema, type Store } from '@/lib/schemas/database/store';
+import { storeSchema, type RevenueBasis, type Store } from '@/lib/schemas/database/store';
 import { Prisma } from '@/prisma/generated/client';
 import { slugify } from '@template/shared';
 import { prismaClient } from './db';
@@ -49,10 +49,15 @@ const freeSlug = async (base: string): Promise<string> => {
   return candidate;
 };
 
-export const createStore = async (
-  ownerId: string,
-  data: { name: string; sheetId?: string; useDemoData: boolean },
-): Promise<Store> => {
+type StoreInput = {
+  name: string;
+  sheetId?: string;
+  useDemoData: boolean;
+  vatRate: number;
+  revenueBasis: RevenueBasis;
+};
+
+export const createStore = async (ownerId: string, data: StoreInput): Promise<Store> => {
   const slug = await freeSlug(slugify(data.name));
   try {
     const row = await prismaClient.store.create({
@@ -61,6 +66,8 @@ export const createStore = async (
         name: data.name,
         sheetId: data.sheetId ?? null,
         useDemoData: data.useDemoData,
+        vatRate: data.vatRate,
+        revenueBasis: data.revenueBasis,
         Owners: { create: [{ userId: ownerId }] },
       },
     });
@@ -76,13 +83,19 @@ export const createStore = async (
 export const updateStore = async (
   ownerId: string,
   storeId: string,
-  data: { name: string; sheetId?: string; useDemoData: boolean },
+  data: StoreInput,
 ): Promise<Store> => {
   const owned = await getStoreById(ownerId, storeId);
   if (owned === undefined) {
     throw new Error('Store not found');
   }
-  const fields = { name: data.name, sheetId: data.sheetId ?? null, useDemoData: data.useDemoData };
+  const fields = {
+    name: data.name,
+    sheetId: data.sheetId ?? null,
+    useDemoData: data.useDemoData,
+    vatRate: data.vatRate,
+    revenueBasis: data.revenueBasis,
+  };
   try {
     const row = await prismaClient.store.update({ where: { id: storeId }, data: fields });
     return storeSchema.parse(row);

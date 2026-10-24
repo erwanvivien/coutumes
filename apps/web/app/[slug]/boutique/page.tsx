@@ -34,6 +34,8 @@ const StoreSettingsPage: React.FC<Props> = async ({ params }) => {
               name: store.name,
               sheet: store.sheetId === undefined ? '' : sheetUrl(store.sheetId),
               useDemoData: store.useDemoData,
+              vatRatePercent: store.vatRate * 100,
+              revenueBasis: store.revenueBasis,
             }}
           />
         </div>

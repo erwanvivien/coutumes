@@ -1,5 +1,6 @@
 import { monthId, resolveTabMonths, type MonthKey } from '@/lib/report/months';
 import { readSheet } from '@/lib/report/sheetReader';
+import { toHT } from '@/lib/report/tax';
 import type { MonthReport, SheetRead } from '@/lib/report/types';
 import type { Store } from '@/lib/schemas/database/store';
 import { unstable_cache } from 'next/cache';
@@ -17,12 +18,21 @@ const fallbackYear = (): number => {
   return Number.isInteger(fromEnv) && fromEnv > 2000 ? fromEnv : new Date().getFullYear();
 };
 
-const fetchSheet = async (source: SheetSource): Promise<SheetRead> => {
+const fetchSheet = async (
+  source: SheetSource,
+  revenueBasis: Store['revenueBasis'],
+  vatRate: number,
+): Promise<SheetRead> => {
   const tabNames = await fetchTabNames(source);
   // Only tabs named after a month have anything to read; the others are reported as invalid
   const monthTabs = resolveTabMonths(tabNames, fallbackYear()).map(({ tabName }) => tabName);
   const grids = await fetchTabs(source, monthTabs);
-  return readSheet({ tabNames, grids, fallbackYear: fallbackYear(), fetchedAt: new Date() });
+  const sheet = readSheet({ tabNames, grids, fallbackYear: fallbackYear(), fetchedAt: new Date() });
+  if (revenueBasis === 'ht') {
+    return sheet;
+  }
+  // The sheet is typed in TTC: normalize to HT, as every KPI and label assumes
+  return { ...sheet, reports: sheet.reports.map((report) => toHT(report, vatRate)) };
 };
 
 /** Every tab of the store's sheet: the usable months, and how each tab was understood. Throws if
@@ -30,10 +40,14 @@ const fetchSheet = async (source: SheetSource): Promise<SheetRead> => {
 export const getSheet = (store: Store): Promise<SheetRead> => {
   const source = sheetSource(store);
   const sourceKey = source.kind === 'demo' ? 'demo' : source.spreadsheetId;
-  return unstable_cache(() => fetchSheet(source), ['sheet', store.id, sourceKey], {
-    revalidate: SHEET_CACHE_SECONDS,
-    tags: [sheetCacheTag(store.id)],
-  })();
+  return unstable_cache(
+    () => fetchSheet(source, store.revenueBasis, store.vatRate),
+    ['sheet', store.id, sourceKey],
+    {
+      revalidate: SHEET_CACHE_SECONDS,
+      tags: [sheetCacheTag(store.id)],
+    },
+  )();
 };
 
 export const getMonthReport = async (

@@ -1,5 +1,9 @@
 import { parseSheetId } from '@/lib/report/sheetUrl';
-import { storeNameSchema } from '@/lib/schemas/database/store';
+import {
+  revenueBasisSchema,
+  storeNameSchema,
+  type RevenueBasis,
+} from '@/lib/schemas/database/store';
 import {
   fetchTabNames,
   ServiceAccountMissingError,
@@ -8,7 +12,15 @@ import {
 } from './sheets/client';
 
 export type ParsedStoreForm =
-  { ok: true; name: string; sheetId?: string; useDemoData: boolean } | { ok: false; error: string };
+  | {
+      ok: true;
+      name: string;
+      sheetId?: string;
+      useDemoData: boolean;
+      vatRate: number;
+      revenueBasis: RevenueBasis;
+    }
+  | { ok: false; error: string };
 
 /** Validates the store settings form, checking the sheet is actually readable before saving. */
 export const parseStoreForm = async (formData: FormData): Promise<ParsedStoreForm> => {
@@ -16,6 +28,17 @@ export const parseStoreForm = async (formData: FormData): Promise<ParsedStoreFor
   if (!name.success) {
     return { ok: false, error: name.error.issues[0].message };
   }
+
+  const revenueBasis = revenueBasisSchema.safeParse(formData.get('revenueBasis'));
+  if (!revenueBasis.success) {
+    return { ok: false, error: 'Indiquez si les chiffres saisis sont HT ou TTC.' };
+  }
+
+  const vatRatePercent = Number(formData.get('vatRate'));
+  if (!Number.isFinite(vatRatePercent) || vatRatePercent < 0 || vatRatePercent > 100) {
+    return { ok: false, error: 'Le taux de TVA doit être compris entre 0 et 100 %.' };
+  }
+  const vatRate = vatRatePercent / 100;
 
   const useDemoData = formData.get('useDemoData') === 'on';
   const rawSheet = formData.get('sheet');
@@ -53,5 +76,12 @@ export const parseStoreForm = async (formData: FormData): Promise<ParsedStoreFor
     }
   }
 
-  return { ok: true, name: name.data, sheetId, useDemoData };
+  return {
+    ok: true,
+    name: name.data,
+    sheetId,
+    useDemoData,
+    vatRate,
+    revenueBasis: revenueBasis.data,
+  };
 };
