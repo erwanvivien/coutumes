@@ -29,7 +29,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 
-type Props = { params: Promise<{ start: string }> };
+type Props = { params: Promise<{ slug: string; start: string }> };
 
 export const generateMetadata = async ({ params }: Props): Promise<Metadata> => {
   const date = parseWeekSlug((await params).start);
@@ -37,12 +37,14 @@ export const generateMetadata = async ({ params }: Props): Promise<Metadata> => 
 };
 
 /** Neighbouring weeks among those the sheet's tabs cover. */
-const weekNav = (reports: MonthReport[], start: IsoDate): PeriodNav => {
+const weekNav = (reports: MonthReport[], slug: string, start: IsoDate): PeriodNav => {
   const weeks = coveredWeeks(reports);
   const previous = weeks.findLast((week) => week < start);
   const next = weeks.find((week) => week > start);
   const link = (week: IsoDate | undefined) =>
-    week === undefined ? undefined : { href: weekPath(week), label: `Semaine ${weekRange(week)}` };
+    week === undefined
+      ? undefined
+      : { href: weekPath(slug, week), label: `Semaine ${weekRange(week)}` };
   return {
     title: periodLabel({ kind: 'week', start }),
     label: 'Changer de semaine',
@@ -52,15 +54,16 @@ const weekNav = (reports: MonthReport[], start: IsoDate): PeriodNav => {
 };
 
 const WeekPage: React.FC<Props> = async ({ params }) => {
-  const date = parseWeekSlug((await params).start);
+  const { slug, start: startParam } = await params;
+  const date = parseWeekSlug(startParam);
   if (date === undefined) {
     notFound();
   }
   const start = mondayOf(date);
   if (start !== date) {
-    redirect(weekPath(start));
+    redirect(weekPath(slug, start));
   }
-  const { store } = await requireStore(weekPath(start));
+  const { store } = await requireStore(slug, weekPath(slug, start));
 
   const loaded = await loadReports(store);
   const reports = loaded.kind === 'ok' ? loaded.reports : [];
@@ -72,18 +75,19 @@ const WeekPage: React.FC<Props> = async ({ params }) => {
     <>
       <AppHeader
         storeName={store.name}
-        nav={weekNav(reports, start)}
+        slug={slug}
+        nav={weekNav(reports, slug, start)}
         actions={
           <>
-            <RefreshButton />
+            <RefreshButton storeId={store.id} />
             {month !== undefined && (
-              <Link href={monthPath(monthSlug(month))} className={layout.button}>
+              <Link href={monthPath(slug, monthSlug(month))} className={layout.button}>
                 <CalendarDays size={16} aria-hidden />
                 <span className={layout.buttonLabel}>{monthLabel(month)}</span>
               </Link>
             )}
             {isCovered && (
-              <Link href={weekPresentationPath(start)} className={layout.buttonPrimary}>
+              <Link href={weekPresentationPath(slug, start)} className={layout.buttonPrimary}>
                 <FileText size={16} aria-hidden />
                 <span className={layout.buttonLabel}>Récap semaine</span>
               </Link>
@@ -93,7 +97,7 @@ const WeekPage: React.FC<Props> = async ({ params }) => {
       />
 
       <main className={layout.main}>
-        {loaded.kind !== 'ok' && <SheetProblem loaded={loaded} />}
+        {loaded.kind !== 'ok' && <SheetProblem loaded={loaded} slug={slug} />}
 
         {loaded.kind === 'ok' && !isCovered && (
           <Notice title={`Aucun onglet pour la semaine ${weekRange(start)}`}>

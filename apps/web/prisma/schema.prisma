@@ -28,8 +28,8 @@ model User {
   updatedAt       DateTime  @updatedAt @map("updated_at")
   emailVerifiedAt DateTime? @map("email_verified_at")
 
-  UserAuth UserAuth[]
-  Store    Store?
+  UserAuth   UserAuth[]
+  StoreOwner StoreOwner[]
 
   @@map("user")
 }
@@ -52,14 +52,14 @@ model UserAuth {
   @@map("user_auth")
 }
 
-/// A shop and the Google Sheet its figures are typed into. One per user, set up after first login.
+/// A shop and the Google Sheet its figures are typed into. A user can own several, and a store
+/// can have several owners (co-managed boutiques), each at its own URL slug.
 model Store {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
 
-  ownerId String @unique @map("owner_id") @db.Uuid
-  Owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-
-  name        String  @db.VarChar(80)
+  /// URL-facing identifier, e.g. "boutique-lyon-part-dieu" in /boutique-lyon-part-dieu/2026-11
+  slug String @unique @db.VarChar(80)
+  name String @db.VarChar(80)
   /// Unique: a sheet belongs to one store, so nobody can attach (and read) someone else's sheet
   sheetId     String? @unique @map("sheet_id")
   useDemoData Boolean @default(false) @map("use_demo_data")
@@ -67,9 +67,25 @@ model Store {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  Owners       StoreOwner[]
   Presentation Presentation[]
 
   @@map("store")
+}
+
+/// Who can see and manage a store: a many-to-many between users and stores.
+model StoreOwner {
+  storeId String @map("store_id") @db.Uuid
+  Store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  userId String @map("user_id") @db.Uuid
+  User   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@id([storeId, userId])
+  @@index([userId])
+  @@map("store_owner")
 }
 
 /// A month's or a week's report as presented to management: the editable blocks, and — once

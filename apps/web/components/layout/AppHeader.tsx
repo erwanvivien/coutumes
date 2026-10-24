@@ -1,4 +1,4 @@
-import { accountLogoutUrl, homePath, storeSettingsPath } from '@/lib/urls';
+import { accountLogoutUrl, homePath, storePath } from '@/lib/urls';
 import { ChevronLeft, ChevronRight, LogOut, Store } from 'lucide-react';
 import Link from 'next/link';
 import styles from './layout.module.css';
@@ -25,15 +25,17 @@ const Arrow: React.FC<{ link?: NavLink; children: React.ReactNode }> = ({ link, 
     </Link>
   );
 
-/** Top bar of the signed-in pages: store name, period switcher and page actions. */
+/** Top bar of the signed-in pages: store name, period switcher and page actions. Pass `slug`
+ * when a store is open, so the brand links to it and an icon offers switching shops. */
 export const AppHeader: React.FC<{
   storeName: string;
+  slug?: string;
   nav?: PeriodNav;
   actions?: React.ReactNode;
-}> = ({ storeName, nav, actions }) => (
+}> = ({ storeName, slug, nav, actions }) => (
   <header className={styles.header}>
     <div className={styles.headerInner}>
-      <Link href={homePath()} className={styles.brand}>
+      <Link href={slug === undefined ? homePath() : storePath(slug)} className={styles.brand}>
         {storeName}
       </Link>
 
@@ -53,14 +55,16 @@ export const AppHeader: React.FC<{
 
       <div className={styles.actions}>
         {actions}
-        <Link
-          href={storeSettingsPath()}
-          className={styles.iconButton}
-          aria-label="Ma boutique"
-          title="Ma boutique"
-        >
-          <Store size={18} />
-        </Link>
+        {slug !== undefined && (
+          <Link
+            href={homePath()}
+            className={styles.iconButton}
+            aria-label="Mes boutiques"
+            title="Mes boutiques"
+          >
+            <Store size={18} />
+          </Link>
+        )}
         <Link
           href={accountLogoutUrl()}
           className={styles.iconButton}

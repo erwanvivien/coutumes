@@ -36,11 +36,12 @@ const TotalsCells: React.FC<{ totals: Totals }> = ({ totals }) => (
 
 /** One row per week of the month. With `month`, each week links to its recap (the dashboard;
  * presentations leave it out). */
-export const WeeklyTable: React.FC<{ weeks: WeekGroup[]; total: Totals; month?: MonthKey }> = ({
-  weeks,
-  total,
-  month,
-}) => (
+export const WeeklyTable: React.FC<{
+  weeks: WeekGroup[];
+  total: Totals;
+  month?: MonthKey;
+  slug?: string;
+}> = ({ weeks, total, month, slug }) => (
   <div className={styles.tableScroll}>
     <table className={styles.table}>
       <thead>
@@ -61,11 +62,11 @@ export const WeeklyTable: React.FC<{ weeks: WeekGroup[]; total: Totals; month?: 
         {weeks.map((week) => (
           <tr key={week.from}>
             <th scope="row">
-              {month === undefined ? (
+              {month === undefined || slug === undefined ? (
                 weekLabel(week)
               ) : (
                 <Link
-                  href={weekPath(mondayOf(dateOf(month, week.from)))}
+                  href={weekPath(slug, mondayOf(dateOf(month, week.from)))}
                   className={styles.rowLink}
                 >
                   {weekLabel(week)}

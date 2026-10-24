@@ -1,7 +1,7 @@
 'use client';
 
 import layout from '@/components/layout/layout.module.css';
-import { absoluteUrl, cx } from '@/lib';
+import { cx } from '@/lib';
 import {
   ADDABLE_BLOCKS,
   BLOCK_LABELS,
@@ -30,12 +30,23 @@ const AUTOSAVE_DELAY_MS = 800;
 
 export const PresentationEditor: React.FC<{
   period: Period;
+  slug: string;
+  storeId: string;
   storeName: string;
   context: BlockContext;
   initialBlocks: Block[];
   initialShareToken?: string;
   initialPublishedAt?: string;
-}> = ({ period, storeName, context, initialBlocks, initialShareToken, initialPublishedAt }) => {
+}> = ({
+  period,
+  slug,
+  storeId,
+  storeName,
+  context,
+  initialBlocks,
+  initialShareToken,
+  initialPublishedAt,
+}) => {
   const id = periodId(period);
   const [blocks, setBlocks] = useState(initialBlocks);
   const [saveState, setSaveState] = useState<SaveState>('saved');
@@ -58,7 +69,7 @@ export const PresentationEditor: React.FC<{
     }
     setSaveState('saving');
     const timeout = setTimeout(() => {
-      savePresentationBlocks(id, blocks).then(
+      savePresentationBlocks(storeId, id, blocks).then(
         () => {
           lastSaved.current = serialized;
           setSaveState('saved');
@@ -67,7 +78,7 @@ export const PresentationEditor: React.FC<{
       );
     }, AUTOSAVE_DELAY_MS);
     return () => clearTimeout(timeout);
-  }, [id, blocks]);
+  }, [id, storeId, blocks]);
 
   const updateBlocks = (update: (current: Block[]) => Block[]) => {
     setBlocks(update);
@@ -102,18 +113,18 @@ export const PresentationEditor: React.FC<{
 
   const onPublish = () =>
     startPublishing(async () => {
-      const result = await publishPresentation(id, blocks);
+      const result = await publishPresentation(storeId, id, blocks);
       setShare({ token: result.shareToken, publishedAt: result.publishedAt });
       setChangedSincePublish(false);
     });
 
   const onUnpublish = () =>
     startPublishing(async () => {
-      await unpublishPresentation(id);
+      await unpublishPresentation(storeId, id);
       setShare(undefined);
     });
 
-  const shareUrl = share === undefined ? undefined : absoluteUrl(sharePath(share.token));
+  const shareUrl = share === undefined ? undefined : sharePath(share.token);
 
   const copyLink = async () => {
     if (shareUrl === undefined) {
@@ -130,7 +141,9 @@ export const PresentationEditor: React.FC<{
         <div className={styles.toolbar}>
           <Link
             href={
-              period.kind === 'month' ? monthPath(monthSlug(period.month)) : weekPath(period.start)
+              period.kind === 'month'
+                ? monthPath(slug, monthSlug(period.month))
+                : weekPath(slug, period.start)
             }
             className={layout.button}
           >

@@ -11,7 +11,7 @@ import { weekPresentationPath } from '@/lib/urls';
 import type { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
 
-type Props = { params: Promise<{ start: string }> };
+type Props = { params: Promise<{ slug: string; start: string }> };
 
 export const generateMetadata = async ({ params }: Props): Promise<Metadata> => {
   const date = parseWeekSlug((await params).start);
@@ -20,15 +20,16 @@ export const generateMetadata = async ({ params }: Props): Promise<Metadata> => 
 
 /** The store's « Récap semaine », written here instead of in Word. */
 const WeekPresentationPage: React.FC<Props> = async ({ params }) => {
-  const date = parseWeekSlug((await params).start);
+  const { slug, start: startParam } = await params;
+  const date = parseWeekSlug(startParam);
   if (date === undefined) {
     notFound();
   }
   const start = mondayOf(date);
   if (start !== date) {
-    redirect(weekPresentationPath(start));
+    redirect(weekPresentationPath(slug, start));
   }
-  const { store } = await requireStore(weekPresentationPath(start));
+  const { store } = await requireStore(slug, weekPresentationPath(slug, start));
 
   const loaded = await loadReports(store);
   const recap =
@@ -37,14 +38,14 @@ const WeekPresentationPage: React.FC<Props> = async ({ params }) => {
   if (recap === undefined || recap.days.every((day) => day.entry === undefined)) {
     return (
       <>
-        <AppHeader storeName={store.name} />
+        <AppHeader storeName={store.name} slug={slug} />
         <main className={layout.main}>
           {loaded.kind === 'ok' ? (
             <Notice title={`Aucun onglet pour la semaine ${weekRange(start)}`}>
               <p>Ajoutez l’onglet du mois dans le Google Sheet pour préparer son récap.</p>
             </Notice>
           ) : (
-            <SheetProblem loaded={loaded} />
+            <SheetProblem loaded={loaded} slug={slug} />
           )}
         </main>
       </>
@@ -57,6 +58,8 @@ const WeekPresentationPage: React.FC<Props> = async ({ params }) => {
   return (
     <PresentationEditor
       period={period}
+      slug={slug}
+      storeId={store.id}
       storeName={store.name}
       context={{ kind: 'week', recap }}
       initialBlocks={presentation.blocks}

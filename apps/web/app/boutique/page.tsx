@@ -1,41 +1,35 @@
 import { AppHeader } from '@/components/layout/AppHeader';
 import layout from '@/components/layout/layout.module.css';
-import { sheetUrl } from '@/lib/report/sheetUrl';
+import { StoreForm } from '@/components/store/StoreForm';
+import styles from '@/components/store/store.module.css';
 import { requireUser } from '@/lib/server/access';
 import { serviceAccountEmail } from '@/lib/server/sheets/client';
-import { getStoreByOwner } from '@/lib/server/stores';
-import { storeSettingsPath } from '@/lib/urls';
+import { newStorePath } from '@/lib/urls';
 import type { Metadata } from 'next';
-import styles from './page.module.css';
-import { StoreForm } from './StoreForm';
+import { createStoreSettings } from './actions';
 
-export const metadata: Metadata = { title: 'Ma boutique' };
+export const metadata: Metadata = { title: 'Nouvelle boutique' };
 
-const StoreSettingsPage: React.FC = async () => {
-  const user = await requireUser(storeSettingsPath());
-  const store = await getStoreByOwner(user.id);
+const NewStorePage: React.FC = async () => {
+  await requireUser(newStorePath());
 
   return (
     <>
-      <AppHeader storeName={store?.name ?? 'Suivi des ventes'} />
+      <AppHeader storeName="Nouvelle boutique" />
       <main className={layout.main}>
         <div className={styles.card}>
           <header className={styles.header}>
-            <h1 className={styles.title}>{store === undefined ? 'Bienvenue' : 'Ma boutique'}</h1>
+            <h1 className={styles.title}>Nouvelle boutique</h1>
             <p className={styles.subtitle}>
-              {store === undefined
-                ? 'Reliez le Google Sheet où vous saisissez vos chiffres : le tableau de bord et les présentations se construisent à partir de lui.'
-                : 'Le nom et le classeur dont les chiffres sont lus.'}
+              Reliez le Google Sheet où vous saisissez vos chiffres : le tableau de bord et les
+              présentations se construisent à partir de lui.
             </p>
           </header>
           <StoreForm
-            isNew={store === undefined}
+            action={createStoreSettings}
+            isNew
             serviceAccountEmail={serviceAccountEmail()}
-            initial={{
-              name: store?.name ?? '',
-              sheet: store?.sheetId === undefined ? '' : sheetUrl(store.sheetId),
-              useDemoData: store?.useDemoData ?? false,
-            }}
+            initial={{ name: '', sheet: '', useDemoData: false }}
           />
         </div>
       </main>
@@ -43,4 +37,4 @@ const StoreSettingsPage: React.FC = async () => {
   );
 };
 
-export default StoreSettingsPage;
+export default NewStorePage;

@@ -22,7 +22,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-type Props = { params: Promise<{ month: string }> };
+type Props = { params: Promise<{ slug: string; month: string }> };
 
 export const generateMetadata = async ({ params }: Props): Promise<Metadata> => {
   const month = parseMonthSlug((await params).month);
@@ -30,12 +30,12 @@ export const generateMetadata = async ({ params }: Props): Promise<Metadata> => 
 };
 
 const MonthPage: React.FC<Props> = async ({ params }) => {
-  const { month: slug } = await params;
-  const month = parseMonthSlug(slug);
+  const { slug, month: monthSlugParam } = await params;
+  const month = parseMonthSlug(monthSlugParam);
   if (month === undefined) {
     notFound();
   }
-  const { store } = await requireStore(monthPath(slug));
+  const { store } = await requireStore(slug, monthPath(slug, monthSlugParam));
 
   const loaded = await loadReports(store);
   const reports = loaded.kind === 'ok' ? loaded.reports : [];
@@ -58,20 +58,21 @@ const MonthPage: React.FC<Props> = async ({ params }) => {
     <>
       <AppHeader
         storeName={store.name}
+        slug={slug}
         nav={{
           title: monthLabel(month),
           label: 'Changer de mois',
           previous: previous && {
-            href: monthPath(monthSlug(previous)),
+            href: monthPath(slug, monthSlug(previous)),
             label: monthLabel(previous),
           },
-          next: next && { href: monthPath(monthSlug(next)), label: monthLabel(next) },
+          next: next && { href: monthPath(slug, monthSlug(next)), label: monthLabel(next) },
         }}
         actions={
           <>
-            <RefreshButton />
+            <RefreshButton storeId={store.id} />
             {report !== undefined && (
-              <Link href={presentationPath(slug)} className={layout.buttonPrimary}>
+              <Link href={presentationPath(slug, monthSlugParam)} className={layout.buttonPrimary}>
                 <Presentation size={16} aria-hidden />
                 <span className={layout.buttonLabel}>Présentation</span>
               </Link>
@@ -81,7 +82,7 @@ const MonthPage: React.FC<Props> = async ({ params }) => {
       />
 
       <main className={layout.main}>
-        {loaded.kind !== 'ok' && <SheetProblem loaded={loaded} />}
+        {loaded.kind !== 'ok' && <SheetProblem loaded={loaded} slug={slug} />}
 
         {loaded.kind === 'ok' && report === undefined && tab === undefined && (
           <Notice title={`Aucun onglet pour ${monthLabel(month)}`}>
@@ -99,13 +100,13 @@ const MonthPage: React.FC<Props> = async ({ params }) => {
             invalid={tab.status === 'invalid'}
           />
         )}
-        {report !== undefined && <MonthDashboard report={report} />}
+        {report !== undefined && <MonthDashboard report={report} slug={slug} />}
       </main>
     </>
   );
 };
 
-const MonthDashboard: React.FC<{ report: MonthReport }> = ({ report }) => {
+const MonthDashboard: React.FC<{ report: MonthReport; slug: string }> = ({ report, slug }) => {
   const summary = summarizeMonth(report);
   const weeks = groupByWeek(report.month, report.days);
 
@@ -134,7 +135,7 @@ const MonthDashboard: React.FC<{ report: MonthReport }> = ({ report }) => {
         title="Par semaine"
         description="Ouvrez une semaine pour son récap et sa comparaison à S-1"
       >
-        <WeeklyTable weeks={weeks} total={summary.totals} month={report.month} />
+        <WeeklyTable weeks={weeks} total={summary.totals} month={report.month} slug={slug} />
       </Section>
 
       <Section title="Détail jour par jour">

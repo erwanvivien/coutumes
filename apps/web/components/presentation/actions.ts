@@ -19,8 +19,12 @@ const periodFromId = (id: string): Period => {
   return period;
 };
 
-export const savePresentationBlocks = async (id: string, blocks: Block[]): Promise<void> => {
-  const store = await currentStore();
+export const savePresentationBlocks = async (
+  storeId: string,
+  id: string,
+  blocks: Block[],
+): Promise<void> => {
+  const store = await currentStore(storeId);
   await saveBlocks(store.id, periodFromId(id), blocksSchema.parse(blocks));
 };
 
@@ -50,8 +54,12 @@ const freeze = async (store: Store, period: Period, blocks: Block[]): Promise<Sn
 };
 
 /** Re-reads the sheet, then freezes the current blocks and figures behind the share link. */
-export const publishPresentation = async (id: string, blocks: Block[]): Promise<PublishResult> => {
-  const store = await currentStore();
+export const publishPresentation = async (
+  storeId: string,
+  id: string,
+  blocks: Block[],
+): Promise<PublishResult> => {
+  const store = await currentStore(storeId);
   const period = periodFromId(id);
 
   updateTag(sheetCacheTag(store.id));
@@ -66,7 +74,7 @@ export const publishPresentation = async (id: string, blocks: Block[]): Promise<
   };
 };
 
-export const unpublishPresentation = async (id: string): Promise<void> => {
-  const store = await currentStore();
+export const unpublishPresentation = async (storeId: string, id: string): Promise<void> => {
+  const store = await currentStore(storeId);
   await unpublish(store.id, periodFromId(id));
 };

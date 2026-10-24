@@ -1,0 +1,148 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  list-style: none;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+  padding: 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  transition: border-color 150ms;
+}
+
+.card:hover {
+  border-color: var(--ink);
+}
+
+.cardCurrent {
+  border-color: var(--series-revenue);
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cardHead > :first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.cardInvalid {
+  background: var(--surface-sunken);
+  box-shadow: none;
+}
+
+.cardInvalid:hover {
+  transform: none;
+  border-color: var(--border);
+}
+
+.cardInvalid .cardTitle {
+  color: var(--ink-secondary);
+}
+
+.cardTitle {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+}
+
+.badge {
+  padding: 3px 8px;
+  font-family: var(--font-label);
+  font-size: 0.6rem;
+  font-stretch: 125%;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--on-brand);
+  background: var(--brand);
+}
+
+.cardValue {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-stretch: 62%;
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.progress {
+  height: 6px;
+  overflow: hidden;
+  background: var(--beige);
+}
+
+.progress > span {
+  display: block;
+  height: 100%;
+  background: var(--brand);
+}
+
+.cardFoot {
+  font-size: 0.8rem;
+  color: var(--ink-muted);
+}
+
+/* ——— Latest week ——— */
+
+.weekCard {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 24px;
+  padding: 20px 24px;
+  color: var(--on-brand);
+  background: var(--brand);
+  /* Deltas sit on the orange: darker tones keep them readable (≥ 4.5:1) */
+  --good: #004d00;
+  --shortfall: #5e3000;
+}
+
+.weekMain {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.weekEyebrow {
+  font-family: var(--font-label);
+  font-size: 0.7rem;
+  font-stretch: 125%;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.weekTitle {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-stretch: 62%;
+  font-weight: 800;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.weekFigures {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  margin-top: 6px;
+}
+
+/* The brand orange is a light background: keep ink-coloured text and a darker amber on it */
+.weekCard .cardFoot {
+  color: var(--on-brand);
+}

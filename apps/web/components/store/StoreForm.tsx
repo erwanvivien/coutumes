@@ -3,18 +3,17 @@
 import layout from '@/components/layout/layout.module.css';
 import { Check, Copy } from 'lucide-react';
 import { useActionState, useState } from 'react';
-import { saveStoreSettings, type StoreFormState } from './actions';
-import styles from './page.module.css';
+import styles from './store.module.css';
+
+export type StoreFormState = { error?: string };
 
 export const StoreForm: React.FC<{
+  action: (previous: StoreFormState, formData: FormData) => Promise<StoreFormState>;
   initial: { name: string; sheet: string; useDemoData: boolean };
   serviceAccountEmail?: string;
   isNew: boolean;
-}> = ({ initial, serviceAccountEmail, isNew }) => {
-  const [state, formAction, isPending] = useActionState<StoreFormState, FormData>(
-    saveStoreSettings,
-    {},
-  );
+}> = ({ action, initial, serviceAccountEmail, isNew }) => {
+  const [state, formAction, isPending] = useActionState<StoreFormState, FormData>(action, {});
   // Controlled: React resets uncontrolled fields after a form action, which would wipe what
   // the user typed whenever we answer with an error
   const [name, setName] = useState(initial.name);

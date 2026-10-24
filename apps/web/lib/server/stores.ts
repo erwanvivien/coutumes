@@ -1,5 +1,6 @@
 import { storeSchema, type Store } from '@/lib/schemas/database/store';
 import { Prisma } from '@/prisma/generated/client';
+import { slugify } from '@template/shared';
 import { prismaClient } from './db';
 import { SheetNotConfiguredError, type SheetSource } from './sheets/client';
 
@@ -10,22 +11,80 @@ export class SheetAlreadyClaimedError extends Error {
   }
 }
 
-export const getStoreByOwner = async (ownerId: string): Promise<Store | undefined> => {
-  const row = await prismaClient.store.findUnique({ where: { ownerId } });
+/** Every store this user can see, oldest first (several users can share a store). */
+export const getStoresByOwner = async (ownerId: string): Promise<Store[]> => {
+  const rows = await prismaClient.store.findMany({
+    where: { Owners: { some: { userId: ownerId } } },
+    orderBy: { createdAt: 'asc' },
+  });
+  return rows.map((row) => storeSchema.parse(row));
+};
+
+/** The store at this slug, scoped to a user who actually owns it (never leaks another's). */
+export const getStoreBySlug = async (ownerId: string, slug: string): Promise<Store | undefined> => {
+  const row = await prismaClient.store.findFirst({
+    where: { slug, Owners: { some: { userId: ownerId } } },
+  });
   return row === null ? undefined : storeSchema.parse(row);
 };
 
-export const saveStore = async (
+/** Same ownership scoping as `getStoreBySlug`, by id instead (for server actions). */
+export const getStoreById = async (ownerId: string, id: string): Promise<Store | undefined> => {
+  const row = await prismaClient.store.findFirst({
+    where: { id, Owners: { some: { userId: ownerId } } },
+  });
+  return row === null ? undefined : storeSchema.parse(row);
+};
+
+/** The first slug derived from `name` that nobody else is using yet. */
+const freeSlug = async (base: string): Promise<string> => {
+  let candidate = base;
+  for (
+    let suffix = 2;
+    (await prismaClient.store.findUnique({ where: { slug: candidate } })) !== null;
+    suffix++
+  ) {
+    candidate = `${base}-${suffix}`;
+  }
+  return candidate;
+};
+
+export const createStore = async (
   ownerId: string,
   data: { name: string; sheetId?: string; useDemoData: boolean },
 ): Promise<Store> => {
+  const slug = await freeSlug(slugify(data.name));
+  try {
+    const row = await prismaClient.store.create({
+      data: {
+        slug,
+        name: data.name,
+        sheetId: data.sheetId ?? null,
+        useDemoData: data.useDemoData,
+        Owners: { create: [{ userId: ownerId }] },
+      },
+    });
+    return storeSchema.parse(row);
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      throw new SheetAlreadyClaimedError();
+    }
+    throw error;
+  }
+};
+
+export const updateStore = async (
+  ownerId: string,
+  storeId: string,
+  data: { name: string; sheetId?: string; useDemoData: boolean },
+): Promise<Store> => {
+  const owned = await getStoreById(ownerId, storeId);
+  if (owned === undefined) {
+    throw new Error('Store not found');
+  }
   const fields = { name: data.name, sheetId: data.sheetId ?? null, useDemoData: data.useDemoData };
   try {
-    const row = await prismaClient.store.upsert({
-      where: { ownerId },
-      create: { ownerId, ...fields },
-      update: fields,
-    });
+    const row = await prismaClient.store.update({ where: { id: storeId }, data: fields });
     return storeSchema.parse(row);
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {

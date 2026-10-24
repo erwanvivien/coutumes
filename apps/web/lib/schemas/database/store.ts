@@ -10,9 +10,16 @@ export const storeNameSchema = z
   .min(1, 'Le nom de la boutique est requis')
   .max(80, 'Le nom est trop long (80 caractères maximum)');
 
+export const storeSlugSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .max(80)
+  .regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, "Le format de l'identifiant est invalide");
+
 export const storeSchema = z.object({
   id: uuidSchema,
-  ownerId: uuidSchema,
+  slug: storeSlugSchema,
 
   name: storeNameSchema,
   sheetId: nullToUndefinedSchema(z.string()),

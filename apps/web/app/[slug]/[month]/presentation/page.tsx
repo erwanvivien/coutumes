@@ -11,7 +11,7 @@ import { presentationPath } from '@/lib/urls';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
-type Props = { params: Promise<{ month: string }> };
+type Props = { params: Promise<{ slug: string; month: string }> };
 
 export const generateMetadata = async ({ params }: Props): Promise<Metadata> => {
   const month = parseMonthSlug((await params).month);
@@ -19,12 +19,12 @@ export const generateMetadata = async ({ params }: Props): Promise<Metadata> => 
 };
 
 const PresentationPage: React.FC<Props> = async ({ params }) => {
-  const { month: slug } = await params;
-  const month = parseMonthSlug(slug);
+  const { slug, month: monthSlugParam } = await params;
+  const month = parseMonthSlug(monthSlugParam);
   if (month === undefined) {
     notFound();
   }
-  const { store } = await requireStore(presentationPath(slug));
+  const { store } = await requireStore(slug, presentationPath(slug, monthSlugParam));
 
   const loaded = await loadReports(store);
   const report =
@@ -35,14 +35,14 @@ const PresentationPage: React.FC<Props> = async ({ params }) => {
   if (report === undefined) {
     return (
       <>
-        <AppHeader storeName={store.name} />
+        <AppHeader storeName={store.name} slug={slug} />
         <main className={layout.main}>
           {loaded.kind === 'ok' ? (
             <Notice title={`Aucun onglet pour ${monthLabel(month)}`}>
               <p>Ajoutez l’onglet du mois dans le Google Sheet pour préparer sa présentation.</p>
             </Notice>
           ) : (
-            <SheetProblem loaded={loaded} />
+            <SheetProblem loaded={loaded} slug={slug} />
           )}
         </main>
       </>
@@ -55,6 +55,8 @@ const PresentationPage: React.FC<Props> = async ({ params }) => {
   return (
     <PresentationEditor
       period={period}
+      slug={slug}
+      storeId={store.id}
       storeName={store.name}
       context={{ kind: 'month', report }}
       initialBlocks={presentation.blocks}

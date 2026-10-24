@@ -4,5 +4,7 @@
   "private": true,
   "main": "./src/index.ts",
   "types": "./src/index.ts",
-  "dependencies": {}
+  "dependencies": {
+    "slugify": "^1.6.9"
+  }
 }
