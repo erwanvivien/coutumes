@@ -1,5 +1,6 @@
 import { AppHeader } from '@/components/layout/AppHeader';
 import layout from '@/components/layout/layout.module.css';
+import { cx } from '@/lib';
 import { requireUser } from '@/lib/server/access';
 import { getStoresByOwner } from '@/lib/server/stores';
 import { homePath, newStorePath, storePath, storeSettingsPath } from '@/lib/urls';
@@ -30,25 +31,23 @@ const HomePage: React.FC = async () => {
           </div>
           <ul className={styles.grid}>
             {stores.map((store) => (
-              <li key={store.id}>
-                <div className={styles.card}>
+              <li key={store.id} className={styles.cardWrap}>
+                <Link href={storePath(store.slug)} className={styles.card}>
                   <span className={styles.cardHead}>
-                    <Link href={storePath(store.slug)} className={styles.cardTitle}>
-                      {store.name}
-                    </Link>
-                    <Link
-                      href={storeSettingsPath(store.slug)}
-                      className={layout.iconButton}
-                      aria-label={`Paramètres de ${store.name}`}
-                      title="Paramètres"
-                    >
-                      <Settings size={16} />
-                    </Link>
+                    <span className={styles.cardTitle}>{store.name}</span>
                   </span>
-                  <Link href={storePath(store.slug)} className={styles.cardFoot}>
+                  <span className={styles.cardFoot}>
                     {store.useDemoData ? 'Données de démonstration' : 'Google Sheet relié'}
-                  </Link>
-                </div>
+                  </span>
+                </Link>
+                <Link
+                  href={storeSettingsPath(store.slug)}
+                  className={cx(layout.iconButton, styles.cardSettings)}
+                  aria-label={`Paramètres de ${store.name}`}
+                  title="Paramètres"
+                >
+                  <Settings size={16} />
+                </Link>
               </li>
             ))}
             <li>
