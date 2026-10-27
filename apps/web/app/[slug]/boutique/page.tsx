@@ -12,6 +12,7 @@ import { sheetUrl } from '@/lib/report/sheetUrl';
 import { requireStore } from '@/lib/server/access';
 import { listMembers } from '@/lib/server/members';
 import { serviceAccountEmail } from '@/lib/server/sheets/client';
+import type { SessionUser } from '@/lib/session';
 import { canDeleteStore, memberPermissions } from '@/lib/storeRoles';
 import { storeSettingsPath } from '@/lib/urls';
 import type { Metadata } from 'next';
@@ -63,7 +64,8 @@ const StoreSettingsPage: React.FC<Props> = async ({ params }) => {
               }}
             />
           )}
-
+        </div>
+        <div className={styles.card}>
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}>Qui a accès</h2>
             <MemberList
@@ -86,21 +88,7 @@ const StoreSettingsPage: React.FC<Props> = async ({ params }) => {
             {isAdmin && <AddMemberForm action={addStoreMember.bind(null, slug)} />}
           </section>
 
-          {isSuperAdmin && (
-            <section className={styles.section}>
-              <h2 className={styles.sectionTitle}>Transférer la propriété</h2>
-              <p className={styles.help}>
-                Vous êtes le propriétaire de cette boutique : personne ne peut vous retirer. Vous
-                pouvez confier ce rôle à une autre personne qui y a déjà accès.
-              </p>
-              <TransferOwnershipForm
-                action={transferStoreOwnership.bind(null, slug)}
-                candidates={members
-                  .filter((member) => member.userId !== user.id)
-                  .map(({ userId, name, email }) => ({ userId, name, email }))}
-              />
-            </section>
-          )}
+          {isSuperAdmin && <Transfer user={user} members={members} slug={slug} />}
 
           {canDeleteStore(viewer) && (
             <section className={styles.section}>
@@ -111,6 +99,37 @@ const StoreSettingsPage: React.FC<Props> = async ({ params }) => {
         </div>
       </main>
     </>
+  );
+};
+
+type TransferProps = {
+  user: SessionUser;
+  members: Array<{
+    userId: string;
+    name: string;
+    email: string;
+  }>;
+  slug: string;
+};
+
+const Transfer: React.FC<TransferProps> = ({ user, members, slug }) => {
+  const others = members.filter((member) => member.userId !== user.id);
+  if (others.length === 0) {
+    return null;
+  }
+
+  return (
+    <section className={styles.section}>
+      <h2 className={styles.sectionTitle}>Transférer la propriété</h2>
+      <p className={styles.help}>
+        Vous êtes le propriétaire de cette boutique : personne ne peut vous retirer. Vous pouvez
+        confier ce rôle à une autre personne qui y a déjà accès.
+      </p>
+      <TransferOwnershipForm
+        action={transferStoreOwnership.bind(null, slug)}
+        candidates={others.map(({ userId, name, email }) => ({ userId, name, email }))}
+      />
+    </section>
   );
 };
 
