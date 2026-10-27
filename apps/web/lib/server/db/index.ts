@@ -21,7 +21,8 @@ export const prismaClient: Omit<PrismaClient, `$${string}`> & {
     return getPrismaClient().presentation;
   },
   get $transaction() {
-    return getPrismaClient().$transaction.bind(this);
+    const client = getPrismaClient();
+    return client.$transaction.bind(client);
   },
 };
 

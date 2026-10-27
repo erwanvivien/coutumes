@@ -33,6 +33,8 @@ export const storeSchema = z.object({
   revenueBasis: revenueBasisSchema,
   vatRate: vatRateSchema,
 
+  superAdminId: uuidSchema,
+
   createdAt: dateSchema,
   updatedAt: dateSchema,
 });

@@ -28,8 +28,9 @@ model User {
   updatedAt       DateTime  @updatedAt @map("updated_at")
   emailVerifiedAt DateTime? @map("email_verified_at")
 
-  UserAuth   UserAuth[]
-  StoreOwner StoreOwner[]
+  UserAuth         UserAuth[]
+  StoreOwner       StoreOwner[]
+  SuperAdminStores Store[]
 
   @@map("user")
 }
@@ -42,6 +43,13 @@ enum Provider {
 enum RevenueBasis {
   ht
   ttc
+}
+
+/// What a member can do in a store: staff read the reports and prepare presentations, admins also
+/// manage the store (settings, who has access, deleting it).
+enum StoreRole {
+  staff
+  admin
 }
 
 model UserAuth {
@@ -64,8 +72,8 @@ model Store {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
 
   /// URL-facing identifier, e.g. "boutique-lyon-part-dieu" in /boutique-lyon-part-dieu/2026-11
-  slug String @unique @db.VarChar(80)
-  name String @db.VarChar(80)
+  slug        String  @unique @db.VarChar(80)
+  name        String  @db.VarChar(80)
   /// Unique: a sheet belongs to one store, so nobody can attach (and read) someone else's sheet
   sheetId     String? @unique @map("sheet_id")
   useDemoData Boolean @default(false) @map("use_demo_data")
@@ -76,6 +84,10 @@ model Store {
   /// VAT rate used to convert TTC figures to HT, as a fraction (0.2 = 20%)
   vatRate      Float        @default(0.2) @map("vat_rate")
 
+  /// The store's creator, until they transfer it: always an admin, and nobody can remove them
+  superAdminId String @map("super_admin_id") @db.Uuid
+  SuperAdmin   User   @relation(fields: [superAdminId], references: [id])
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -85,13 +97,15 @@ model Store {
   @@map("store")
 }
 
-/// Who can see and manage a store: a many-to-many between users and stores.
+/// Who has access to a store, and with which role: a many-to-many between users and stores.
 model StoreOwner {
   storeId String @map("store_id") @db.Uuid
   Store   Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
 
   userId String @map("user_id") @db.Uuid
   User   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  role StoreRole @default(staff)
 
   createdAt DateTime @default(now()) @map("created_at")
 

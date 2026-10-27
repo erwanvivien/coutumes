@@ -141,3 +141,91 @@
   background: var(--critical-wash);
   border-radius: var(--radius);
 }
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 24px;
+  border-top: 1px solid var(--hairline);
+}
+
+.sectionTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.fieldNarrow {
+  display: flex;
+  flex: 0 1 180px;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.inputSmall {
+  height: 36px;
+  padding: 0 8px;
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--baseline);
+  border-radius: var(--radius);
+}
+
+.members {
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  border-top: 1px solid var(--hairline);
+}
+
+.member {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.memberRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.memberIdentity {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.memberName {
+  font-weight: 600;
+}
+
+.memberEmail {
+  overflow-wrap: anywhere;
+  font-size: 0.85rem;
+  color: var(--ink-muted);
+}
+
+.memberActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.badge {
+  padding: 4px 8px;
+  font-family: var(--font-label);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--surface-sunken);
+}

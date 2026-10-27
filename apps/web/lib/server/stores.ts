@@ -68,7 +68,8 @@ export const createStore = async (ownerId: string, data: StoreInput): Promise<St
         useDemoData: data.useDemoData,
         vatRate: data.vatRate,
         revenueBasis: data.revenueBasis,
-        Owners: { create: [{ userId: ownerId }] },
+        superAdminId: ownerId,
+        Owners: { create: [{ userId: ownerId, role: 'admin' }] },
       },
     });
     return storeSchema.parse(row);
