@@ -29,8 +29,10 @@ export type MemberRowProps = {
   role: StoreRole;
   isSuperAdmin: boolean;
   isCurrentUser: boolean;
-  /** Set when the viewer may change this member's role or remove them. */
-  manage?: { changeRole: Action; remove: Action };
+  /** Set when the viewer may change this member's role. */
+  changeRole?: Action;
+  /** Set when the viewer may remove this member. */
+  remove?: Action;
 };
 
 const MemberRow: React.FC<MemberRowProps> = ({
@@ -39,14 +41,15 @@ const MemberRow: React.FC<MemberRowProps> = ({
   role,
   isSuperAdmin,
   isCurrentUser,
-  manage,
+  changeRole,
+  remove,
 }) => {
   const [roleState, roleAction, isRolePending] = useActionState<StoreFormState, FormData>(
-    manage?.changeRole ?? noAction,
+    changeRole ?? noAction,
     {},
   );
   const [removeState, removeAction, isRemovePending] = useActionState<StoreFormState, FormData>(
-    manage?.remove ?? noAction,
+    remove ?? noAction,
     {},
   );
 
@@ -61,36 +64,36 @@ const MemberRow: React.FC<MemberRowProps> = ({
           <span className={styles.memberEmail}>{email}</span>
         </div>
         <div className={styles.memberActions}>
-          {manage === undefined ? (
+          {changeRole === undefined ? (
             <span className={styles.badge}>{isSuperAdmin ? 'Propriétaire' : roleLabels[role]}</span>
           ) : (
-            <>
-              <form action={roleAction}>
-                <select
-                  name="role"
-                  defaultValue={role}
-                  aria-label={`Rôle de ${name}`}
-                  disabled={isRolePending}
-                  onChange={(event) => event.currentTarget.form?.requestSubmit()}
-                  className={styles.inputSmall}
-                >
-                  <option value="staff">{roleLabels.staff}</option>
-                  <option value="admin">{roleLabels.admin}</option>
-                </select>
-              </form>
-              <form
-                action={removeAction}
-                onSubmit={(event) => {
-                  if (!window.confirm(`Retirer l’accès de ${name} à la boutique ?`)) {
-                    event.preventDefault();
-                  }
-                }}
+            <form action={roleAction}>
+              <select
+                name="role"
+                defaultValue={role}
+                aria-label={`Rôle de ${name}`}
+                disabled={isRolePending}
+                onChange={(event) => event.currentTarget.form?.requestSubmit()}
+                className={styles.inputSmall}
               >
-                <button type="submit" className={layout.button} disabled={isRemovePending}>
-                  Retirer
-                </button>
-              </form>
-            </>
+                <option value="staff">{roleLabels.staff}</option>
+                <option value="admin">{roleLabels.admin}</option>
+              </select>
+            </form>
+          )}
+          {remove !== undefined && (
+            <form
+              action={removeAction}
+              onSubmit={(event) => {
+                if (!window.confirm(`Retirer l’accès de ${name} à la boutique ?`)) {
+                  event.preventDefault();
+                }
+              }}
+            >
+              <button type="submit" className={layout.button} disabled={isRemovePending}>
+                Retirer
+              </button>
+            </form>
           )}
         </div>
       </div>
@@ -148,7 +151,7 @@ export const AddMemberForm: React.FC<{ action: Action }> = ({ action }) => {
       <p className={styles.help}>
         La personne se connecte avec son compte Google à cette adresse. Les collaborateurs voient
         les tableaux de bord et préparent les présentations ; les administrateurs gèrent aussi la
-        boutique, ses accès et peuvent la supprimer.
+        boutique et y ajoutent des collaborateurs.
       </p>
       <ErrorMessage state={state} />
       <div>

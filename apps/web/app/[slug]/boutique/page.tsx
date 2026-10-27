@@ -12,6 +12,7 @@ import { sheetUrl } from '@/lib/report/sheetUrl';
 import { requireStore } from '@/lib/server/access';
 import { listMembers } from '@/lib/server/members';
 import { serviceAccountEmail } from '@/lib/server/sheets/client';
+import { canDeleteStore, memberPermissions } from '@/lib/storeRoles';
 import { storeSettingsPath } from '@/lib/urls';
 import type { Metadata } from 'next';
 import {
@@ -33,6 +34,7 @@ const StoreSettingsPage: React.FC<Props> = async ({ params }) => {
   const members = await listMembers(store.id);
   const isAdmin = role === 'admin';
   const isSuperAdmin = store.superAdminId === user.id;
+  const viewer = { userId: user.id, role, isSuperAdmin };
 
   return (
     <>
@@ -65,21 +67,21 @@ const StoreSettingsPage: React.FC<Props> = async ({ params }) => {
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}>Qui a accès</h2>
             <MemberList
-              members={members.map((member) => ({
-                userId: member.userId,
-                name: member.name,
-                email: member.email,
-                role: member.role,
-                isSuperAdmin: member.isSuperAdmin,
-                isCurrentUser: member.userId === user.id,
-                manage:
-                  isAdmin && !member.isSuperAdmin && member.userId !== user.id
-                    ? {
-                        changeRole: changeStoreMemberRole.bind(null, slug, member.userId),
-                        remove: removeStoreMember.bind(null, slug, member.userId),
-                      }
+              members={members.map((member) => {
+                const { canChangeRole, canRemove } = memberPermissions(viewer, member);
+                return {
+                  userId: member.userId,
+                  name: member.name,
+                  email: member.email,
+                  role: member.role,
+                  isSuperAdmin: member.isSuperAdmin,
+                  isCurrentUser: member.userId === user.id,
+                  changeRole: canChangeRole
+                    ? changeStoreMemberRole.bind(null, slug, member.userId)
                     : undefined,
-              }))}
+                  remove: canRemove ? removeStoreMember.bind(null, slug, member.userId) : undefined,
+                };
+              })}
             />
             {isAdmin && <AddMemberForm action={addStoreMember.bind(null, slug)} />}
           </section>
@@ -100,7 +102,7 @@ const StoreSettingsPage: React.FC<Props> = async ({ params }) => {
             </section>
           )}
 
-          {isAdmin && (
+          {canDeleteStore(viewer) && (
             <section className={styles.section}>
               <h2 className={styles.sectionTitle}>Supprimer la boutique</h2>
               <DeleteStoreForm action={deleteStoreAction.bind(null, slug)} storeName={store.name} />

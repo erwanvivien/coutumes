@@ -9,6 +9,7 @@ import {
   addMember,
   AlreadyMemberError,
   deleteStore,
+  getMemberRole,
   NotMemberError,
   removeMember,
   setMemberRole,
@@ -18,6 +19,7 @@ import {
 import { sheetCacheTag } from '@/lib/server/report';
 import { parseStoreForm } from '@/lib/server/storeForm';
 import { SheetAlreadyClaimedError, updateStore } from '@/lib/server/stores';
+import { canDeleteStore, memberPermissions } from '@/lib/storeRoles';
 import { homePath, storePath, storeSettingsPath } from '@/lib/urls';
 import { revalidatePath, updateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
@@ -93,6 +95,25 @@ export const addStoreMember = async (
   return {};
 };
 
+/** What the calling admin may do to this member, or undefined if they have no access anymore. */
+const permissionsOver = async (
+  access: { user: { id: string }; store: { id: string; superAdminId: string } },
+  userId: string,
+): Promise<ReturnType<typeof memberPermissions> | undefined> => {
+  const role = await getMemberRole(userId, access.store.id);
+  if (role === undefined) {
+    return undefined;
+  }
+  return memberPermissions(
+    {
+      userId: access.user.id,
+      role: 'admin',
+      isSuperAdmin: access.store.superAdminId === access.user.id,
+    },
+    { userId, role, isSuperAdmin: access.store.superAdminId === userId },
+  );
+};
+
 export const changeStoreMemberRole = async (
   slug: string,
   userId: string,
@@ -103,8 +124,12 @@ export const changeStoreMemberRole = async (
   if (!access.ok) {
     return { error: access.error };
   }
-  if (userId === access.user.id) {
-    return { error: 'Vous ne pouvez pas changer votre propre rôle.' };
+  const permissions = await permissionsOver(access, userId);
+  if (permissions === undefined) {
+    return { error: 'Cette personne n’a plus accès à la boutique.' };
+  }
+  if (!permissions.canChangeRole) {
+    return { error: 'Seul le propriétaire de la boutique peut rétrograder un administrateur.' };
   }
   const role = storeRoleSchema.safeParse(formData.get('role'));
   if (!role.success) {
@@ -130,8 +155,12 @@ export const removeStoreMember = async (
   if (!access.ok) {
     return { error: access.error };
   }
-  if (userId === access.user.id) {
-    return { error: 'Vous ne pouvez pas vous retirer vous-même.' };
+  const permissions = await permissionsOver(access, userId);
+  if (permissions === undefined) {
+    return { error: 'Cette personne n’a plus accès à la boutique.' };
+  }
+  if (!permissions.canRemove) {
+    return { error: 'Seul le propriétaire de la boutique peut retirer un administrateur.' };
   }
 
   try {
@@ -170,7 +199,7 @@ export const transferStoreOwnership = async (
   return {};
 };
 
-/** Deletes the store for everyone, once its name has been typed back as confirmation. */
+/** Deletes the store for everyone, once its name has been typed back; only its super admin can. */
 export const deleteStoreAction = async (
   slug: string,
   _previous: StoreFormState,
@@ -179,6 +208,10 @@ export const deleteStoreAction = async (
   const access = await adminStore(slug);
   if (!access.ok) {
     return { error: access.error };
+  }
+  const isSuperAdmin = access.store.superAdminId === access.user.id;
+  if (!canDeleteStore({ userId: access.user.id, role: 'admin', isSuperAdmin })) {
+    return { error: 'Seul le propriétaire de la boutique peut la supprimer.' };
   }
   const confirmation = formData.get('confirmation');
   if (typeof confirmation !== 'string' || confirmation.trim() !== access.store.name) {

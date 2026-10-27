@@ -10,9 +10,9 @@ where its monthly figures are typed (one tab per month), or demo data. `apps/web
 read-only with an app-wide service account, recomputes the KPIs, and renders a month dashboard
 (`/{year}-{mois}`), a week recap vs S-1 (`/semaine/{lundi}`), a presentation editor for each
 (`…/presentation`) and frozen public share links (`/p/{token}`). Postgres holds users, stores and presentations (per store). A store's members are
-`staff` or `admin` (`store_owner.role`); only admins edit its settings, manage who has access and
-can delete it, and its creator is the `superAdminId` (always an admin, can't be removed, and
-can transfer the role).
+`staff` or `admin` (`store_owner.role`); admins edit its settings and add, promote or remove
+staff. Its creator is the `superAdminId` (always an admin, can't be removed, can transfer the
+role): only they demote or remove admins and delete the store — see `lib/storeRoles.ts`.
 Everything a page or action reads must be scoped to the caller's store (`requireStore` /
 `currentStore` in `lib/server/access.ts`). UI copy is in French.
 
